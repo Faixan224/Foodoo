@@ -4,6 +4,7 @@ async function getTopDishes() {
   const { data } = await supabase
     .from('dishes')
     .select('id, name, category, photo_url, avg_rating, total_reviews, weighted_score, price, restaurants(name)')
+    .order('weighted_score', { ascending: false })
     .limit(8)
   return data || []
 }
