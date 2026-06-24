@@ -1,0 +1,2 @@
+NEXT_PUBLIC_SUPABASE_URL=https://fggwbybhhpflwglngswk.supabase.co 
+NEXT_PUBLIC_SUPABASE_ANON_KEY=APNI_ANON_KEY
