@@ -30,8 +30,10 @@ async function getTopDishIds() {
   return (data || []).map((d, i) => ({ id: d.id, rank: i + 1 }))
 }
 
-export default async function RestaurantPage({ params }) {
+export default async function RestaurantPage({ params, searchParams }) {
   const { slug } = await params
+  const resolvedSearch = await searchParams
+  const selectedCat = resolvedSearch?.cat || ''
   const restaurant = await getRestaurant(slug)
 
   if (!restaurant) return (
@@ -41,15 +43,17 @@ export default async function RestaurantPage({ params }) {
     </div>
   )
 
-  const [dishes, topDishIds] = await Promise.all([
+  const [allDishes, topDishIds] = await Promise.all([
     getRestaurantDishes(restaurant.id),
     getTopDishIds()
   ])
 
+  const dishes = selectedCat ? allDishes.filter(d => d.category === selectedCat) : allDishes
+
   const rankMap = {}
   topDishIds.forEach(({ id, rank }) => { rankMap[id] = rank })
 
-  const categories = [...new Set(dishes.map(d => d.category).filter(Boolean))]
+  const categories = [...new Set(allDishes.map(d => d.category).filter(Boolean))]
 
   return (
     <>
@@ -167,14 +171,14 @@ export default async function RestaurantPage({ params }) {
           <div className="section-title">Menu ({dishes.length} dishes)</div>
           {categories.length > 1 && (
             <div className="cat-filter">
-              <a href={`/restaurant/${slug}`} className="cat-btn active">All</a>
+              <a href={`/restaurant/${slug}`} className={'cat-btn' + (!selectedCat ? ' active' : '')}>All</a>
               {categories.map(cat => (
-                <a key={cat} href={`/restaurant/${slug}?cat=${cat}`} className="cat-btn">{cat}</a>
+                <a key={cat} href={`/restaurant/${slug}?cat=${cat}`} className={'cat-btn' + (selectedCat === cat ? ' active' : '')}>{cat}</a>
               ))}
             </div>
           )}
           {dishes.length === 0 ? (
-            <div className="empty">No dishes added yet</div>
+            <div className="empty">No dishes found</div>
           ) : (
             <div className="dish-grid">
               {dishes.map((dish) => (

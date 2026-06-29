@@ -117,14 +117,11 @@ export default async function Home() {
 
         .rest-scroll { display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none; padding-bottom: 20px; }
         .rest-scroll::-webkit-scrollbar { display: none; }
-        .rest-card { display: flex; flex-direction: column; align-items: center; text-decoration: none; flex-shrink: 0; width: 76px; }
-        .rest-logo { width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #F5F5F5; display: flex; align-items: center; justify-content: center; border: 2px solid #F0F0F0; margin-bottom: 7px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .rest-card { display: flex; flex-direction: column; text-decoration: none; flex-shrink: 0; width: 160px; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .rest-logo { width: 160px; height: 130px; background: #F5F5F5; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .rest-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .rest-name { font-size: 11px; font-weight: 700; color: #1A1A1A; text-align: center; line-height: 1.3; }
-        .rest-rating-row { display: flex; align-items: center; gap: 3px; margin-top: 3px; justify-content: center; }
-        .rest-rating { font-size: 10px; font-weight: 600; color: #1A1A1A; }
 
-        .bottom-nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 160px); background: #fff; border-radius: 24px; display: flex; justify-content: space-around; align-items: center; padding: 10px 8px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.12); border: 1px solid #F0F0F0; }
+        .bottom-nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); background: #fff; border-radius: 24px; display: flex; justify-content: space-around; align-items: center; padding: 10px 8px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.12); border: 1px solid #F0F0F0; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; padding: 6px 20px; border-radius: 14px; transition: background 0.15s; }
         .nav-item.active { background: #FFF3ED; }
         .nav-label { font-size: 10px; color: #999; font-weight: 500; }
@@ -279,12 +276,25 @@ export default async function Home() {
               {topRestaurants.map((r) => (
                 <a key={r.id} href={'/restaurant/' + r.slug} className="rest-card">
                   <div className="rest-logo">
-                    {r.logo_url ? <img src={r.logo_url} alt={r.name}/> : <span style={{ fontSize: 24 }}>🏪</span>}
+                    {r.logo_url ? <img src={r.logo_url} alt={r.name}/> : <span style={{ fontSize: 32 }}>🏪</span>}
                   </div>
-                  <div className="rest-name">{r.name}</div>
-                  <div className="rest-rating-row">
-                    <span className="dish-stars" style={{ fontSize: 10 }}>★</span>
-                    <span className="rest-rating">{r.avg_rating ? r.avg_rating.toFixed(1) : 'New'}</span>
+                  <div style={{ padding: '10px 12px 12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#1A1A1A', lineHeight: 1.3 }}>{r.name}</div>
+                      {r.cuisine_type?.length > 0 && (
+                        <div style={{ fontSize: 11, color: '#888', marginTop: 3 }}>{r.cuisine_type.join(' • ')}</div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <span style={{ color: '#F86D1C', fontSize: 12 }}>★</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#1A1A1A' }}>{r.avg_rating ? r.avg_rating.toFixed(1) : 'New'}</span>
+                      </div>
+                      <div style={{ fontSize: 10, color: '#888', display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#888" strokeWidth="1.5"/></svg>
+                        Lahore
+                      </div>
+                    </div>
                   </div>
                 </a>
               ))}
