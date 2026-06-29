@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import CategoryDrawer from './CategoryDrawer'
+
 
 async function getTopDishes() {
   const { data: ranked } = await supabase
@@ -40,15 +40,12 @@ export default async function Home() {
   const topDishes = await getTopDishes()
   const topRestaurants = await getTopRestaurants()
 
-  const mainCategories = [
+  const allCategories = [
     { name: 'Appetizer', img: '/icons/Appitizer.png' },
     { name: 'Burgers', img: '/icons/Burger.png' },
     { name: 'Pizza', img: '/icons/Pasta.png' },
     { name: 'Pasta', img: '/icons/Chinese.png' },
     { name: 'Sandwich', img: '/icons/Sandwich.png' },
-  ]
-
-  const moreCategories = [
     { name: 'Meat', img: '/icons/Meat.png' },
     { name: 'Chinese', img: '/icons/Chinese.png' },
     { name: 'Fried Chicken', img: '/icons/FriedChicken.png' },
@@ -176,13 +173,12 @@ export default async function Home() {
 
         <div className="cats-wrap">
           <div className="cats-scroll">
-            {mainCategories.map(cat => (
+            {allCategories.map(cat => (
               <a key={cat.name} href={'/search?category=' + cat.name} className="cat-pill">
                 <img src={cat.img} alt={cat.name} width="28" height="28" style={{ display: 'block', objectFit: 'contain' }} />
                 <span className="cat-name">{cat.name}</span>
               </a>
             ))}
-            <CategoryDrawer mainCategories={mainCategories} moreCategories={moreCategories} />
           </div>
         </div>
 
