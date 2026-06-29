@@ -137,21 +137,16 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #FAF8F5; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
-        .page { background: #FAF8F5; min-height: 100vh; padding-bottom: 110px; }
+        body { background: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
+        .page { background: #fff; min-height: 100vh; padding-bottom: 110px; }
         .top-bar { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; z-index: 10; }
         .icon-btn { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; text-decoration: none; flex-shrink: 0; }
         .top-right { display: flex; gap: 10px; }
-        .hero { position: relative; height: 300px; background: #1A1A1A; overflow: hidden; }
-        .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .hero { position: relative; height: 300px; background: #fff; overflow: hidden; }
+        .hero img { width: 100%; height: 100%; object-fit: contain; display: block; background: #fff; }
         .hero-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-        .dots { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); }
-        .dot.active { background: #F86D1C; width: 20px; border-radius: 4px; }
         .card { background: #fff; border-radius: 24px 24px 0 0; margin-top: -20px; position: relative; padding: 22px 20px 0; }
-        .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
         .dish-name { font-size: 22px; font-weight: 800; color: #1A1A1A; line-height: 1.2; flex: 1; }
-        .rating-pill { display: flex; align-items: center; gap: 5px; background: #F86D1C; color: #fff; font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
         .rest-link { display: inline-flex; align-items: center; gap: 5px; text-decoration: none; margin-bottom: 16px; margin-top: 4px; }
         .rest-link-name { font-size: 14px; color: #F86D1C; font-weight: 600; }
         .info-pills { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
@@ -194,9 +189,10 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
         .show-more-btn { width: 100%; padding: 13px; border: 1.5px solid #F86D1C; border-radius: 12px; background: #fff; color: #F86D1C; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; margin-bottom: 8px; }
         .sim-scroll { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
         .sim-scroll::-webkit-scrollbar { display: none; }
-        .sim-card { flex-shrink: 0; width: 130px; text-decoration: none; display: block; }
-        .sim-img { width: 130px; height: 100px; border-radius: 12px; background: #1A1A1A; overflow: hidden; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
-        .sim-img img { width: 100%; height: 100%; object-fit: cover; }
+        .sim-card { flex-shrink: 0; width: 150px; text-decoration: none; display: flex; flex-direction: column; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .sim-img { width: 150px; height: 120px; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sim-img img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+        .sim-info { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #F0F0F0; padding: 10px 20px 28px; z-index: 99; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); }
         .rate-btn { width: 100%; background: #F86D1C; color: #fff; border: none; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
@@ -284,15 +280,9 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                 </svg>
               </div>
           }
-          <div className="dots">
-            <div className="dot active"></div>
-            <div className="dot"></div>
-            <div className="dot"></div>
-          </div>
         </div>
 
         <div className="card">
-          {/* 1. Restaurant link */}
           {dish.restaurants && (
             <a href={'/restaurant/' + dish.restaurants.slug} className="rest-link" style={{ marginBottom: 4 }}>
               <span className="rest-link-name">{dish.restaurants.name}</span>
@@ -300,12 +290,10 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             </a>
           )}
 
-          {/* 2. Title only */}
           <div style={{ marginBottom: 10 }}>
             <div className="dish-name">{dish.name}</div>
           </div>
 
-          {/* 3. Rating inline */}
           {dish.total_reviews > 0 && rating > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#F86D1C"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -314,7 +302,6 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             </div>
           )}
 
-          {/* 4. Badge */}
           {rank > 0 && rank <= 10 && (
             <div style={{ marginBottom: 14 }}>
               <span style={{ background: '#F86D1C', color: '#fff', fontSize: 12, fontWeight: 700, padding: '5px 12px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
@@ -323,7 +310,6 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             </div>
           )}
 
-          {/* 5. Info pills */}
           <div className="info-pills">
             {dish.price && (
               <div className="info-pill">
@@ -349,7 +335,6 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
           {dish.description && <><p className="desc">{dish.description}</p><button className="read-more">Read more</button></>}
           <div className="divider"></div>
 
-          {/* RATINGS BREAKDOWN */}
           <div style={{ marginBottom: 24 }}>
             <div className="sec-header"><div className="sec-title">Ratings & Reviews</div></div>
             <div className="ratings-wrap">
@@ -370,7 +355,6 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             </div>
           </div>
 
-          {/* REVIEWS LIST */}
           <div style={{ marginBottom: 24 }}>
             {reviews.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '24px 0', color: '#BBB' }}>
@@ -424,7 +408,6 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             )}
           </div>
 
-          {/* SIMILAR DISHES */}
           {similarDishes.length > 0 && (
             <div style={{ marginBottom: 24 }}>
               <div className="divider"></div>
@@ -436,14 +419,23 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                 {similarDishes.map(d => (
                   <a key={d.id} href={'/dish/' + d.id} className="sim-card">
                     <div className="sim-img">
-                      {d.photo_url ? <img src={d.photo_url} alt={d.name}/> : <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#555" strokeWidth="1.5"/></svg>}
+                      {d.photo_url
+                        ? <img src={d.photo_url} alt={d.name}/>
+                        : <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg>
+                      }
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.3 }}>{d.name}</div>
-                    <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>{d.restaurants?.name}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                      <span style={{ color: '#F86D1C', fontSize: 12 }}>★</span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#1A1A1A' }}>{d.avg_rating > 0 ? d.avg_rating.toFixed(1) : 'New'}</span>
-                      {d.price && <span style={{ fontSize: 12, color: '#888' }}>· Rs. {d.price}</span>}
+                    <div className="sim-info">
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#1A1A1A', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{d.name}</div>
+                        <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>{d.restaurants?.name}</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                          <span style={{ color: '#F86D1C', fontSize: 13 }}>★</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>{d.avg_rating > 0 ? d.avg_rating.toFixed(1) : 'New'}</span>
+                        </div>
+                        {d.price && <span style={{ fontSize: 12, fontWeight: 800, color: '#1A1A1A' }}>Rs. {d.price}</span>}
+                      </div>
                     </div>
                   </a>
                 ))}
@@ -489,8 +481,8 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             <div style={{ fontSize: 22, fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>Thanks for your review!</div>
             <div style={{ fontSize: 14, color: '#888', marginBottom: 24 }}>Your feedback helps others make better food choices.</div>
             <div style={{ background: '#F9F9F9', borderRadius: 16, padding: '16px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 14, textAlign: 'left' }}>
-              <div style={{ width: 56, height: 56, borderRadius: 12, background: '#1A1A1A', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {dish.photo_url ? <img src={dish.photo_url} alt={dish.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> : <span style={{ fontSize: 24 }}>🍽️</span>}
+              <div style={{ width: 56, height: 56, borderRadius: 12, background: '#F5F5F5', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {dish.photo_url ? <img src={dish.photo_url} alt={dish.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }}/> : <span style={{ fontSize: 24 }}>🍽️</span>}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>{dish.name}</div>
