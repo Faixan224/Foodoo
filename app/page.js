@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import SaveButton from './SaveButton'
 
 
 async function getTopDishes() {
@@ -217,7 +218,7 @@ export default async function Home() {
                   <div className="dish-img-wrap">
                     {dish.photo_url ? <img src={dish.photo_url} alt={dish.name}/> : <div className="dish-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#444" strokeWidth="1.5"/></svg></div>}
                     <div className="dish-rank-badge">#{i + 1}</div>
-                    <div className="dish-save-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 3 14 3 8a5 5 0 019-3 5 5 0 019 3c0 6-9 13-9 13z" stroke="#1A1A1A" strokeWidth="2" fill="none"/></svg></div>
+                    <SaveButton dishId={dish.id} />
                   </div>
                   <div className="dish-info">
                     <div className="dish-name">{dish.name}</div>

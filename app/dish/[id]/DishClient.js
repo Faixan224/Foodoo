@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 
 const StarRating = ({ value, onChange, size = 32, showLabel = false }) => {
@@ -50,6 +50,25 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const [error, setError] = useState('')
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [likedReviews, setLikedReviews] = useState({})
+  const [isSaved, setIsSaved] = useState(false)
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('foodoo_saved') || '[]')
+    setIsSaved(saved.includes(dish.id))
+  }, [dish.id])
+
+  const toggleSave = () => {
+    const saved = JSON.parse(localStorage.getItem('foodoo_saved') || '[]')
+    let updated
+    if (saved.includes(dish.id)) {
+      updated = saved.filter(id => id !== dish.id)
+      setIsSaved(false)
+    } else {
+      updated = [...saved, dish.id]
+      setIsSaved(true)
+    }
+    localStorage.setItem('foodoo_saved', JSON.stringify(updated))
+  }
 
   const tagOptions = [
     'Creamy & Rich', 'Good Portion', 'Fresh Ingredients', 'Worth the Price',
@@ -248,9 +267,9 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                 <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <button className="icon-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M12 21C12 21 3 14 3 8a5 5 0 019-3 5 5 0 019 3c0 6-9 13-9 13z" stroke="#E53935" strokeWidth="2" fill="none"/>
+            <button className="icon-btn" onClick={toggleSave}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill={isSaved ? '#E53935' : 'none'}>
+                <path d="M12 21C12 21 3 14 3 8a5 5 0 019-3 5 5 0 019 3c0 6-9 13-9 13z" stroke="#E53935" strokeWidth="2"/>
               </svg>
             </button>
           </div>
