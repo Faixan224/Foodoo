@@ -118,7 +118,7 @@ export default async function Home() {
         .empty { text-align: center; padding: 48px 0; color: #CCC; }
         .empty p { font-size: 13px; margin-top: 12px; color: #BBB; }
         @media (min-width: 768px) {
-          .header { padding: 24px 40px 0; } .search-wrap { padding: 16px 40px; } .cats-wrap { padding: 0 40px 16px; } .stats-wrap { padding: 0 40px 24px; } .section { padding: 0 40px; } .dish-grid { grid-template-columns: repeat(4, 1fr); } .bottom-nav { display: none; } .dish-img-wrap { height: 180px; } .logo { font-size: 34px; }
+          .header { padding: 24px 40px 0; } .search-wrap { padding: 16px 40px; } .cats-wrap { padding: 0 40px 16px; } .stats-wrap { padding: 0 40px 24px; } .section { padding: 0 40px; } .dish-grid { grid-template-columns: repeat(4, 1fr); } .dish-img-wrap { height: 180px; } .logo { font-size: 34px; }
         }
         @media (min-width: 1200px) {
           .header { padding: 28px 80px 0; } .search-wrap { padding: 20px 80px; } .cats-wrap { padding: 0 80px 20px; } .stats-wrap { padding: 0 80px 28px; } .section { padding: 0 80px; } .dish-img-wrap { height: 200px; }

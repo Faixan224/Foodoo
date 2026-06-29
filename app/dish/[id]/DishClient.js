@@ -32,7 +32,7 @@ const StarRating = ({ value, onChange, size = 32, showLabel = false }) => {
   )
 }
 
-export default function DishClient({ dish, reviews, similarDishes }) {
+export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const [showReview, setShowReview] = useState(false)
   const [alreadyReviewed, setAlreadyReviewed] = useState(false)
   const [hoursLeft, setHoursLeft] = useState(0)
@@ -42,20 +42,27 @@ export default function DishClient({ dish, reviews, similarDishes }) {
   const [valueStars, setValueStars] = useState(0)
   const [tags, setTags] = useState([])
   const [comment, setComment] = useState('')
+  const [nickname, setNickname] = useState('')
   const [phone, setPhone] = useState('')
   const [showPhoneInput, setShowPhoneInput] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [showAllReviews, setShowAllReviews] = useState(false)
+  const [likedReviews, setLikedReviews] = useState({})
 
   const tagOptions = [
-    'Creamy & Rich', 'Good Portion', 'Fresh Chicken', 'Worth the Price',
+    'Creamy & Rich', 'Good Portion', 'Fresh Ingredients', 'Worth the Price',
     'Too Expensive', 'Sauce Heavy', 'Must Try! 🔥', 'Spicy 🌶️'
   ]
 
   const toggleTag = (tag) => setTags(prev =>
     prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
   )
+
+  const toggleLike = (reviewId) => {
+    setLikedReviews(prev => ({ ...prev, [reviewId]: !prev[reviewId] }))
+  }
 
   const openReviewSheet = () => {
     const lastReview = localStorage.getItem('review_' + dish.id)
@@ -81,7 +88,9 @@ export default function DishClient({ dish, reviews, similarDishes }) {
     const emailValid = /^[^\s@]+@[^\s@]+\.(com|net|org|pk|edu|gov|io|co\.pk|com\.pk)$/i.test(phone)
     const isVerified = pkValid || emailValid
     const { error: err } = await supabase.from('reviews').insert({
-      dish_id: dish.id, phone_hash: phoneHash, stars,
+      dish_id: dish.id, phone_hash: phoneHash,
+      nickname: nickname.trim() || null,
+      stars,
       comment: comment || null, tags: tags.length > 0 ? tags : null,
       source: 'web', is_verified: isVerified, weight: isVerified ? 3.0 : 1.0
     })
@@ -92,7 +101,7 @@ export default function DishClient({ dish, reviews, similarDishes }) {
   const resetSheet = () => {
     setShowReview(false); setSubmitted(false); setAlreadyReviewed(false)
     setStars(0); setTasteStars(0); setPortionStars(0); setValueStars(0)
-    setTags([]); setComment(''); setPhone(''); setShowPhoneInput(false)
+    setTags([]); setComment(''); setNickname(''); setPhone(''); setShowPhoneInput(false)
   }
 
   const rating = dish.avg_rating || 0
@@ -102,6 +111,8 @@ export default function DishClient({ dish, reviews, similarDishes }) {
     const pct = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0
     return { star: s, pct }
   })
+
+  const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 3)
 
   return (
     <>
@@ -133,7 +144,7 @@ export default function DishClient({ dish, reviews, similarDishes }) {
         .divider { height: 8px; background: #F7F7F7; margin: 0 -20px 22px; }
         .sec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
         .sec-title { font-size: 17px; font-weight: 800; color: #1A1A1A; }
-        .see-all { font-size: 13px; color: #F86D1C; font-weight: 600; text-decoration: none; }
+        .see-all { font-size: 13px; color: #F86D1C; font-weight: 600; text-decoration: none; background: none; border: none; cursor: pointer; }
         .ratings-wrap { display: flex; gap: 20px; align-items: center; margin-bottom: 22px; }
         .big-num { font-size: 48px; font-weight: 900; color: #1A1A1A; line-height: 1; }
         .big-stars { display: flex; gap: 3px; justify-content: center; margin: 6px 0 4px; }
@@ -145,17 +156,23 @@ export default function DishClient({ dish, reviews, similarDishes }) {
         .bar-track { flex: 1; height: 6px; background: #F0F0F0; border-radius: 3px; overflow: hidden; }
         .bar-fill { height: 100%; background: #F86D1C; border-radius: 3px; }
         .bar-pct { font-size: 11px; color: #999; width: 28px; text-align: right; flex-shrink: 0; }
-        .rev-card { display: flex; gap: 12px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #F5F5F5; }
-        .rev-av { width: 40px; height: 40px; border-radius: 50%; background: #F0EDE8; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-        .rev-body { flex: 1; }
-        .rev-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .rev-card { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #F5F5F5; }
+        .rev-top-row { display: flex; gap: 12px; margin-bottom: 8px; align-items: flex-start; }
+        .rev-av { width: 42px; height: 42px; border-radius: 50%; background: #F0EDE8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+        .rev-meta { flex: 1; min-width: 0; }
+        .rev-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
         .rev-name { font-size: 14px; font-weight: 700; color: #1A1A1A; }
-        .rev-time { font-size: 11px; color: #BBB; margin: 2px 0 6px; }
+        .rev-time { font-size: 11px; color: #BBB; margin-bottom: 4px; }
         .rev-stars { display: flex; gap: 2px; }
         .rstar { color: #F86D1C; font-size: 13px; }
         .rstar.e { color: #DDD; }
-        .rev-text { font-size: 14px; color: #444; line-height: 1.5; }
-        .vbadge { display: inline-flex; align-items: center; gap: 4px; background: #E8F5E9; color: #2E7D32; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; margin-top: 6px; }
+        .rev-text { font-size: 14px; color: #444; line-height: 1.5; margin-top: 8px; margin-bottom: 10px; }
+        .rev-bottom { display: flex; align-items: center; justify-content: flex-end; }
+        .like-btn { display: flex; align-items: center; gap: 6px; background: #fff; border: 1.5px solid #E8E8E8; border-radius: 20px; cursor: pointer; font-size: 13px; color: #555; padding: 6px 14px; font-weight: 500; transition: all 0.15s; }
+        .like-btn:hover { border-color: #F86D1C; color: #F86D1C; }
+        .like-btn.liked { border-color: #E53935; color: #E53935; background: #FFF5F5; }
+        .vbadge { display: inline-flex; align-items: center; gap: 4px; background: #E8F5E9; color: #2E7D32; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+        .show-more-btn { width: 100%; padding: 13px; border: 1.5px solid #F86D1C; border-radius: 12px; background: #fff; color: #F86D1C; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; margin-bottom: 8px; }
         .sim-scroll { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
         .sim-scroll::-webkit-scrollbar { display: none; }
         .sim-card { flex-shrink: 0; width: 130px; text-decoration: none; display: block; }
@@ -187,6 +204,9 @@ export default function DishClient({ dish, reviews, similarDishes }) {
         .tag.active { background: #FFF3ED; border-color: #F86D1C; color: #F86D1C; font-weight: 600; }
         textarea { width: 100%; border: 1.5px solid #EBEBEB; border-radius: 12px; padding: 14px; font-size: 14px; color: #1A1A1A; outline: none; resize: none; font-family: inherit; background: #FAFAFA; }
         textarea:focus { border-color: #F86D1C; background: #fff; }
+        .text-input { width: 100%; border: 1.5px solid #EBEBEB; border-radius: 12px; padding: 14px; font-size: 14px; color: #1A1A1A; outline: none; font-family: inherit; background: #FAFAFA; display: block; }
+        .text-input:focus { border-color: #F86D1C; background: #fff; }
+        .text-input::placeholder { color: #BBB; }
         .photo-box { border: 1.5px dashed #DDD; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; margin-bottom: 20px; background: #FAFAFA; }
         .photo-box-text { font-size: 14px; font-weight: 600; color: #1A1A1A; }
         .photo-box-sub { font-size: 12px; color: #999; }
@@ -194,7 +214,8 @@ export default function DishClient({ dish, reviews, similarDishes }) {
         .phone-row.verified { border-color: #4CAF50; background: #F1F8F1; }
         .phone-left { display: flex; align-items: center; gap: 10px; }
         .phone-label { font-size: 14px; font-weight: 600; color: #1A1A1A; }
-        .phone-input { width: 100%; border: 1.5px solid #F86D1C; border-radius: 14px; padding: 14px 16px; font-size: 14px; outline: none; font-family: inherit; margin-bottom: 8px; display: block; }
+        .phone-input { width: 100%; border: 1.5px solid #F86D1C; border-radius: 14px; padding: 14px 16px; font-size: 14px; color: #1A1A1A; outline: none; font-family: inherit; margin-bottom: 8px; display: block; background: #fff; }
+        .phone-input::placeholder { color: #BBB; }
         .submit-btn { width: 100%; background: #F86D1C; color: #fff; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .submit-btn:disabled { opacity: 0.6; }
         .error-msg { color: #E53935; font-size: 13px; text-align: center; margin-bottom: 12px; }
@@ -252,22 +273,38 @@ export default function DishClient({ dish, reviews, similarDishes }) {
         </div>
 
         <div className="card">
-          <div className="title-row">
-            <div className="dish-name">{dish.name}</div>
-            {rating > 0 && (
-              <div className="rating-pill">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                {rating.toFixed(1)}
-              </div>
-            )}
-          </div>
-          {dish.total_reviews > 0 && <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>({dish.total_reviews} reviews)</div>}
+          {/* 1. Restaurant link */}
           {dish.restaurants && (
-            <a href={'/restaurant/' + dish.restaurants.slug} className="rest-link">
+            <a href={'/restaurant/' + dish.restaurants.slug} className="rest-link" style={{ marginBottom: 4 }}>
               <span className="rest-link-name">{dish.restaurants.name}</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#F86D1C" strokeWidth="2" strokeLinecap="round"/></svg>
             </a>
           )}
+
+          {/* 2. Title only */}
+          <div style={{ marginBottom: 10 }}>
+            <div className="dish-name">{dish.name}</div>
+          </div>
+
+          {/* 3. Rating inline */}
+          {dish.total_reviews > 0 && rating > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#F86D1C"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>{rating.toFixed(1)}</span>
+              <span style={{ fontSize: 13, color: '#888' }}>({dish.total_reviews})</span>
+            </div>
+          )}
+
+          {/* 4. Badge */}
+          {rank > 0 && rank <= 10 && (
+            <div style={{ marginBottom: 14 }}>
+              <span style={{ background: '#F86D1C', color: '#fff', fontSize: 12, fontWeight: 700, padding: '5px 12px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                #{rank} in Editor's Picks
+              </span>
+            </div>
+          )}
+
+          {/* 5. Info pills */}
           <div className="info-pills">
             {dish.price && (
               <div className="info-pill">
@@ -286,8 +323,11 @@ export default function DishClient({ dish, reviews, similarDishes }) {
               </div>
             )}
           </div>
+
           {dish.description && <><p className="desc">{dish.description}</p><button className="read-more">Read more</button></>}
           <div className="divider"></div>
+
+          {/* RATINGS BREAKDOWN */}
           <div style={{ marginBottom: 24 }}>
             <div className="sec-header"><div className="sec-title">Ratings & Reviews</div></div>
             <div className="ratings-wrap">
@@ -307,31 +347,62 @@ export default function DishClient({ dish, reviews, similarDishes }) {
               </div>
             </div>
           </div>
+
+          {/* REVIEWS LIST */}
           <div style={{ marginBottom: 24 }}>
             {reviews.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '24px 0', color: '#BBB' }}>
                 <p style={{ fontSize: 14 }}>No reviews yet — be the first!</p>
               </div>
-            ) : reviews.map(r => (
-              <div key={r.id} className="rev-card">
-                <div className="rev-av">👤</div>
-                <div className="rev-body">
-                  <div className="rev-top">
-                    <span className="rev-name">{r.nickname || ('Foodie #' + parseInt(r.id.replace(/-/g, '').slice(-8), 16).toString().slice(-5))}</span>
-                    <div className="rev-stars">{stars5.map(s => <span key={s} className={'rstar' + (s <= r.stars ? '' : ' e')}>★</span>)}</div>
-                  </div>
-                  <div className="rev-time">{new Date(r.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                  {r.comment && <div className="rev-text">{r.comment}</div>}
-                  {r.is_verified && (
-                    <div className="vbadge">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2E7D32" strokeWidth="2.5" strokeLinecap="round"/></svg>
-                      Verified Visit
+            ) : (
+              <>
+                {displayedReviews.map(r => (
+                  <div key={r.id} className="rev-card">
+                    <div className="rev-top-row">
+                      <div className="rev-av">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#BBB" strokeWidth="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#BBB" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                      </div>
+                      <div className="rev-meta">
+                        <div className="rev-name-row">
+                          <span className="rev-name">{r.nickname || ('Foodie #' + parseInt(r.id.replace(/-/g, '').slice(-8), 16).toString().slice(-5))}</span>
+                          {r.is_verified && (
+                            <div className="vbadge">
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2E7D32" strokeWidth="2.5" strokeLinecap="round"/></svg>
+                              Verified
+                            </div>
+                          )}
+                        </div>
+                        <div className="rev-time">{new Date(r.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                        <div className="rev-stars">{stars5.map(s => <span key={s} className={'rstar' + (s <= r.stars ? '' : ' e')}>★</span>)}</div>
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
-            ))}
+                    {r.comment && <div className="rev-text">{r.comment}</div>}
+                    <div className="rev-bottom">
+                      <button className={'like-btn' + (likedReviews[r.id] ? ' liked' : '')} onClick={() => toggleLike(r.id)}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/>
+                          <path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
+                        </svg>
+                        Helpful ({likedReviews[r.id] ? 1 : 0})
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {reviews.length > 3 && !showAllReviews && (
+                  <button className="show-more-btn" onClick={() => setShowAllReviews(true)}>
+                    Show all {reviews.length} reviews ↓
+                  </button>
+                )}
+                {showAllReviews && reviews.length > 3 && (
+                  <button className="show-more-btn" onClick={() => setShowAllReviews(false)}>
+                    Show less ↑
+                  </button>
+                )}
+              </>
+            )}
           </div>
+
+          {/* SIMILAR DISHES */}
           {similarDishes.length > 0 && (
             <div style={{ marginBottom: 24 }}>
               <div className="divider"></div>
@@ -472,6 +543,11 @@ export default function DishClient({ dish, reviews, similarDishes }) {
                   <div className="photo-box-text">Add Photo / Video</div>
                   <div className="photo-box-sub">Share up to 5 photos or a video</div>
                 </div>
+              </div>
+              <div style={{ marginBottom: 20 }}>
+                <div className="field-label">Your Name <span className="field-sublabel">(optional)</span></div>
+                <input className="text-input" placeholder="e.g. Ahmad from Gulberg" value={nickname} onChange={e => setNickname(e.target.value)} maxLength={30}/>
+                <div style={{ fontSize: 12, color: '#AAA', marginTop: 6 }}>If left blank, you'll appear as Foodie #XXXXX</div>
               </div>
               <div style={{ marginBottom: 8 }}>
                 <div className="field-label">Add Phone Number / Email <span className="field-sublabel">(optional)</span></div>

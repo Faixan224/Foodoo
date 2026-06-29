@@ -50,5 +50,15 @@ export default async function DishPage({ params }) {
     </div>
   )
 
-  return <DishClient dish={dish} reviews={reviews} similarDishes={similarDishes} />
+  // Get dish rank
+  const { data: rankData } = await supabase
+    .from('dishes')
+    .select('id, weighted_score')
+    .order('weighted_score', { ascending: false })
+    .order('created_at', { ascending: true })
+    .limit(10)
+  const rank = rankData ? rankData.findIndex(d => d.id === dish.id) + 1 : 0
+  console.log('RANK DEBUG:', rank, dish.id, rankData?.map(d => d.id))
+
+  return <DishClient dish={dish} reviews={reviews} similarDishes={similarDishes} rank={rank} />
 }
