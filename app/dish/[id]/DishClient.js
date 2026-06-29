@@ -308,7 +308,10 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
           <div className="info-pills">
             {dish.price && (
               <div className="info-pill">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#F86D1C" strokeWidth="1.5"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 010 3H10a1.5 1.5 0 000 3H15" stroke="#F86D1C" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="#F86D1C" strokeWidth="1.5"/>
+                  <text x="12" y="12" textAnchor="middle" dominantBaseline="central" fontSize="6" fontWeight="900" fill="#F86D1C" fontFamily="Arial, sans-serif">Rs</text>
+                </svg>
                 <div><div className="pill-value">Rs. {dish.price}</div><div className="pill-label">Price</div></div>
               </div>
             )}
