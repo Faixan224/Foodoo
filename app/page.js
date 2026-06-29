@@ -1,12 +1,29 @@
 import { supabase } from '../lib/supabase'
+import CategoryDrawer from './CategoryDrawer'
 
 async function getTopDishes() {
-  const { data } = await supabase
+  const { data: ranked } = await supabase
     .from('dishes')
     .select('id, name, category, photo_url, avg_rating, total_reviews, weighted_score, price, restaurants(name)')
+    .gt('weighted_score', 0)
     .order('weighted_score', { ascending: false })
     .limit(8)
-  return data || []
+
+  const rankedIds = (ranked || []).map(d => d.id)
+  const needed = 8 - (ranked || []).length
+
+  let unranked = []
+  if (needed > 0) {
+    const { data } = await supabase
+      .from('dishes')
+      .select('id, name, category, photo_url, avg_rating, total_reviews, weighted_score, price, restaurants(name)')
+      .eq('weighted_score', 0)
+      .order('created_at', { ascending: false })
+      .limit(needed)
+    unranked = (data || []).filter(d => !rankedIds.includes(d.id))
+  }
+
+  return [...(ranked || []), ...unranked]
 }
 
 async function getTopRestaurants() {
@@ -23,12 +40,15 @@ export default async function Home() {
   const topDishes = await getTopDishes()
   const topRestaurants = await getTopRestaurants()
 
-  const allCategories = [
+  const mainCategories = [
     { name: 'Appetizer', img: '/icons/Appitizer.png' },
     { name: 'Burgers', img: '/icons/Burger.png' },
     { name: 'Pizza', img: '/icons/Pasta.png' },
     { name: 'Pasta', img: '/icons/Chinese.png' },
     { name: 'Sandwich', img: '/icons/Sandwich.png' },
+  ]
+
+  const moreCategories = [
     { name: 'Meat', img: '/icons/Meat.png' },
     { name: 'Chinese', img: '/icons/Chinese.png' },
     { name: 'Fried Chicken', img: '/icons/FriedChicken.png' },
@@ -156,12 +176,13 @@ export default async function Home() {
 
         <div className="cats-wrap">
           <div className="cats-scroll">
-            {allCategories.map(cat => (
+            {mainCategories.map(cat => (
               <a key={cat.name} href={'/search?category=' + cat.name} className="cat-pill">
                 <img src={cat.img} alt={cat.name} width="28" height="28" style={{ display: 'block', objectFit: 'contain' }} />
                 <span className="cat-name">{cat.name}</span>
               </a>
             ))}
+            <CategoryDrawer mainCategories={mainCategories} moreCategories={moreCategories} />
           </div>
         </div>
 
