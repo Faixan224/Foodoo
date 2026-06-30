@@ -1,5 +1,5 @@
 import { supabase } from '../../../lib/supabase'
-import { MIN_RANK_REVIEWS } from '../../../lib/ranking'
+import { MIN_RANK_REVIEWS, getEditorsPicks } from '../../../lib/ranking'
 import BackButton from './BackButton'
 
 async function getRestaurant(slug) {
@@ -30,13 +30,8 @@ async function getRestaurantDishes(restaurantId) {
 }
 
 async function getTopDishIds() {
-  const { data } = await supabase
-    .from('dishes')
-    .select('id')
-    .gte('total_reviews', MIN_RANK_REVIEWS)
-    .order('weighted_score', { ascending: false })
-    .limit(10)
-  return (data || []).map((d, i) => ({ id: d.id, rank: i + 1 }))
+  const picks = await getEditorsPicks(supabase, { columns: 'id' })
+  return picks.map((d, i) => ({ id: d.id, rank: i + 1 }))
 }
 
 export default async function RestaurantPage({ params, searchParams }) {

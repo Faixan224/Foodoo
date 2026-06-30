@@ -1,33 +1,12 @@
 import { supabase } from '../lib/supabase'
-import { MIN_RANK_REVIEWS } from '../lib/ranking'
+import { getEditorsPicks } from '../lib/ranking'
 import SaveButton from './SaveButton'
 
 // Render on every request so newly submitted reviews are reflected immediately.
 export const dynamic = 'force-dynamic'
 
 async function getTopDishes() {
-  const { data: ranked } = await supabase
-    .from('dishes')
-    .select('id, name, category, photo_url, avg_rating, total_reviews, weighted_score, price, restaurants(name)')
-    .gte('total_reviews', MIN_RANK_REVIEWS)
-    .order('weighted_score', { ascending: false })
-    .limit(8)
-
-  const rankedIds = (ranked || []).map(d => d.id)
-  const needed = 8 - (ranked || []).length
-
-  let unranked = []
-  if (needed > 0) {
-    const { data } = await supabase
-      .from('dishes')
-      .select('id, name, category, photo_url, avg_rating, total_reviews, weighted_score, price, restaurants(name)')
-      .lt('total_reviews', MIN_RANK_REVIEWS)
-      .order('created_at', { ascending: false })
-      .limit(needed)
-    unranked = (data || []).filter(d => !rankedIds.includes(d.id))
-  }
-
-  return [...(ranked || []), ...unranked]
+  return getEditorsPicks(supabase)
 }
 
 async function getTopRestaurants() {
@@ -224,7 +203,7 @@ export default async function Home() {
               </div>
               <div className="section-sub">Dishes loved by everyone, rated by real food lovers</div>
             </div>
-            <a href="/search" className="view-all">View all ›</a>
+            <a href="/editors-picks" className="view-all">View all ›</a>
           </div>
 
           {topDishes.length === 0 ? (
@@ -241,7 +220,7 @@ export default async function Home() {
                       ? <img src={dish.photo_url} alt={dish.name}/>
                       : <div className="dish-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg></div>
                     }
-                    {dish.total_reviews >= MIN_RANK_REVIEWS && <div className="dish-rank-badge">#{i + 1}</div>}
+                    <div className="dish-rank-badge">#{i + 1}</div>
                     <SaveButton dishId={dish.id} />
                   </div>
                   <div className="dish-info">

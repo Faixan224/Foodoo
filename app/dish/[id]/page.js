@@ -1,5 +1,5 @@
 import { supabase } from '../../../lib/supabase'
-import { MIN_RANK_REVIEWS } from '../../../lib/ranking'
+import { getEditorsPicks } from '../../../lib/ranking'
 import DishClient from './DishClient'
 
 async function getDish(id) {
@@ -51,15 +51,10 @@ export default async function DishPage({ params }) {
     </div>
   )
 
-  // Get dish rank — same rule as home/restaurant Editor's Picks:
-  // only dishes with enough reviews are ranked, ordered by weighted_score.
-  const { data: rankData } = await supabase
-    .from('dishes')
-    .select('id')
-    .gte('total_reviews', MIN_RANK_REVIEWS)
-    .order('weighted_score', { ascending: false })
-    .limit(10)
-  const rank = rankData ? rankData.findIndex(d => d.id === dish.id) + 1 : 0
+  // Dish rank uses the same Editor's Picks list as the home & restaurant pages
+  // so every "#N in Editor's Picks" badge is consistent.
+  const rankList = await getEditorsPicks(supabase, { columns: 'id' })
+  const rank = rankList.findIndex(d => d.id === dish.id) + 1
 
   return <DishClient dish={dish} reviews={reviews} similarDishes={similarDishes} rank={rank} />
 }
