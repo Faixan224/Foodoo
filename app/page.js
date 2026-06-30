@@ -241,7 +241,7 @@ export default async function Home() {
                       ? <img src={dish.photo_url} alt={dish.name}/>
                       : <div className="dish-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg></div>
                     }
-                    <div className="dish-rank-badge">#{i + 1}</div>
+                    {dish.total_reviews >= MIN_RANK_REVIEWS && <div className="dish-rank-badge">#{i + 1}</div>}
                     <SaveButton dishId={dish.id} />
                   </div>
                   <div className="dish-info">

@@ -1,4 +1,5 @@
 import { supabase } from '../../../lib/supabase'
+import { MIN_RANK_REVIEWS } from '../../../lib/ranking'
 import DishClient from './DishClient'
 
 async function getDish(id) {
@@ -50,15 +51,15 @@ export default async function DishPage({ params }) {
     </div>
   )
 
-  // Get dish rank
+  // Get dish rank — same rule as home/restaurant Editor's Picks:
+  // only dishes with enough reviews are ranked, ordered by weighted_score.
   const { data: rankData } = await supabase
     .from('dishes')
-    .select('id, weighted_score')
+    .select('id')
+    .gte('total_reviews', MIN_RANK_REVIEWS)
     .order('weighted_score', { ascending: false })
-    .order('created_at', { ascending: true })
     .limit(10)
   const rank = rankData ? rankData.findIndex(d => d.id === dish.id) + 1 : 0
-  console.log('RANK DEBUG:', rank, dish.id, rankData?.map(d => d.id))
 
   return <DishClient dish={dish} reviews={reviews} similarDishes={similarDishes} rank={rank} />
 }
