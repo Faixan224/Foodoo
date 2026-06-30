@@ -9,6 +9,17 @@ async function getTopDishes() {
   return getEditorsPicks(supabase)
 }
 
+async function getPopularDishes() {
+  const { data } = await supabase
+    .from('dishes')
+    .select('id, name, category, photo_url, avg_rating, total_reviews, price, restaurants(name)')
+    .eq('status', 'active')
+    .order('total_reviews', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(10)
+  return data || []
+}
+
 async function getTopRestaurants() {
   const { data } = await supabase
     .from('restaurants')
@@ -22,6 +33,7 @@ async function getTopRestaurants() {
 
 export default async function Home() {
   const topDishes = await getTopDishes()
+  const popularDishes = await getPopularDishes()
   const topRestaurants = await getTopRestaurants()
 
   const allCategories = [
@@ -85,7 +97,7 @@ export default async function Home() {
         .dish-grid .dish-card:nth-child(n+5) { display: none; }
         .dish-card { background: #fff; border-radius: 18px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
         .dish-img-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #fff; overflow: hidden; }
-        .dish-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+        .dish-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
         .dish-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #F5F5F5; }
         .dish-rank-badge { position: absolute; top: 8px; left: 8px; background: #F86D1C; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 7px; }
         .dish-save-btn { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
@@ -225,6 +237,52 @@ export default async function Home() {
                       : <div className="dish-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg></div>
                     }
                     <div className="dish-rank-badge">#{i + 1}</div>
+                    <SaveButton dishId={dish.id} />
+                  </div>
+                  <div className="dish-info">
+                    <div className="dish-name">{dish.name}</div>
+                    <div className="dish-rating-row">
+                      <span className="dish-stars">★</span>
+                      <span className="dish-rating-val">{dish.avg_rating ? dish.avg_rating.toFixed(1) : 'New'}</span>
+                      <span className="dish-rating-count">({dish.total_reviews})</span>
+                      <span className="dish-rest-dot">•</span>
+                      <span className="dish-rest-name">{dish.restaurants?.name || ''}</span>
+                    </div>
+                    <div className="dish-footer">
+                      {dish.category && <span className="dish-category-tag">{dish.category}</span>}
+                      {dish.price && <span className="dish-price">Rs. {dish.price}</span>}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* POPULAR DISHES */}
+        <div className="section">
+          <div className="section-header">
+            <div>
+              <div className="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#F86D1C"><path d="M12 2a1 1 0 01.9.56l2.6 5.27 5.82.85a1 1 0 01.55 1.7l-4.2 4.1 1 5.8a1 1 0 01-1.45 1.05L12 18.6l-5.2 2.73a1 1 0 01-1.45-1.05l1-5.8-4.2-4.1a1 1 0 01.55-1.7l5.82-.85L11.1 2.56A1 1 0 0112 2z" opacity="0"/><path d="M13.5 2.5c-.6 2.2-2 3.6-4.2 4.2 2.2.6 3.6 2 4.2 4.2.6-2.2 2-3.6 4.2-4.2-2.2-.6-3.6-2-4.2-4.2zM6 11c-.4 1.5-1.4 2.5-2.9 2.9C4.6 14.3 5.6 15.3 6 16.8c.4-1.5 1.4-2.5 2.9-2.9C7.4 13.5 6.4 12.5 6 11zm9.5 3c-.3 1.2-1.1 2-2.3 2.3 1.2.3 2 1.1 2.3 2.3.3-1.2 1.1-2 2.3-2.3-1.2-.3-2-1.1-2.3-2.3z"/></svg>
+                Popular Dishes
+              </div>
+              <div className="section-sub">Most-loved dishes across all restaurants</div>
+            </div>
+            <a href="/dishes" className="view-all">View all ›</a>
+          </div>
+
+          {popularDishes.length === 0 ? (
+            <div className="empty"><p>No dishes yet — coming soon!</p></div>
+          ) : (
+            <div className="dish-grid">
+              {popularDishes.map((dish) => (
+                <a key={dish.id} href={'/dish/' + dish.id} className="dish-card">
+                  <div className="dish-img-wrap">
+                    {dish.photo_url
+                      ? <img src={dish.photo_url} alt={dish.name}/>
+                      : <div className="dish-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg></div>
+                    }
                     <SaveButton dishId={dish.id} />
                   </div>
                   <div className="dish-info">

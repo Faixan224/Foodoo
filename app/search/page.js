@@ -106,7 +106,7 @@ function SearchContent() {
         .dish-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
         .dish-card { background: #fff; border-radius: 18px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
         .dish-img-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #fff; overflow: hidden; }
-        .dish-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+        .dish-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
         .dish-img-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #F5F5F5; }
         .dish-info { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
         .dish-name { font-size: 15px; font-weight: 800; color: #1A1A1A; line-height: 1.3; }

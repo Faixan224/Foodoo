@@ -209,7 +209,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
         .sim-scroll::-webkit-scrollbar { display: none; }
         .sim-card { flex-shrink: 0; width: 150px; text-decoration: none; display: flex; flex-direction: column; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .sim-img { width: 150px; height: 120px; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .sim-img img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+        .sim-img img { width: 100%; height: 100%; object-fit: cover; }
         .sim-info { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #F0F0F0; padding: 10px 20px 28px; z-index: 99; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); }
         .rate-btn { width: 100%; background: #F86D1C; color: #fff; border: none; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; }

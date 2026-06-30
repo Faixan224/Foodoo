@@ -44,7 +44,7 @@ export default function SavedPage() {
         .dish-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
         .dish-card { background: #fff; border-radius: 16px; overflow: hidden; text-decoration: none; display: block; box-shadow: 0 2px 12px rgba(0,0,0,0.08); position: relative; }
         .dish-img-wrap { height: 140px; background: #fff; overflow: hidden; }
-        .dish-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+        .dish-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
         .dish-img-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #F5F5F5; }
         .remove-btn { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; background: rgba(255,255,255,0.95); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
         .dish-info { padding: 10px 12px 12px; }
