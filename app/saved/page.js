@@ -41,7 +41,7 @@ export default function SavedPage() {
         .top-bar { background: #fff; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #F0F0F0; position: sticky; top: 0; z-index: 50; }
         .top-title { font-size: 17px; font-weight: 800; color: #1A1A1A; }
         .content { padding: 20px; }
-        .dish-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .dish-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
         .dish-card { background: #fff; border-radius: 16px; overflow: hidden; text-decoration: none; display: block; box-shadow: 0 2px 12px rgba(0,0,0,0.08); position: relative; }
         .dish-img-wrap { height: 140px; background: #fff; overflow: hidden; }
         .dish-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }

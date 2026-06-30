@@ -94,7 +94,7 @@ export default async function RestaurantPage({ params, searchParams }) {
         .cat-filter::-webkit-scrollbar { display: none; }
         .cat-btn { padding: 6px 14px; border-radius: 50px; border: 1.5px solid #E8E8E8; background: #fff; font-size: 13px; font-weight: 500; color: #555; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: inherit; text-decoration: none; display: inline-block; }
         .cat-btn.active { background: #FFF3ED; border-color: #F86D1C; color: #F86D1C; font-weight: 600; }
-        .dish-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .dish-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
         .dish-card { background: #fff; border-radius: 18px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
         .dish-img-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #fff; overflow: hidden; }
         .dish-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
