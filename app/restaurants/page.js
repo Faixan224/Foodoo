@@ -25,31 +25,33 @@ export default async function RestaurantsPage() {
         .back-btn { width: 36px; height: 36px; border-radius: 50%; background: #F5F5F5; display: flex; align-items: center; justify-content: center; text-decoration: none; flex-shrink: 0; }
         .top-title { font-size: 18px; font-weight: 800; color: #1A1A1A; display: flex; align-items: center; gap: 6px; }
         .top-sub { font-size: 12px; color: #999; margin-top: 2px; font-weight: 400; }
-        .wrap { padding: 14px 20px; }
-        .rest-list { display: flex; flex-direction: column; gap: 12px; }
-        .rest-row { display: flex; align-items: center; gap: 14px; background: #fff; border: 1px solid #F0F0F0; border-radius: 16px; padding: 12px 14px; text-decoration: none; }
-        .rest-logo { width: 60px; height: 60px; border-radius: 14px; overflow: hidden; background: #F5F5F5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #F0F0F0; }
-        .rest-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .rest-body { flex: 1; min-width: 0; }
-        .rest-name { font-size: 15px; font-weight: 800; color: #1A1A1A; line-height: 1.3; }
-        .rest-cuisine { font-size: 12px; color: #888; margin-top: 2px; }
-        .rest-meta { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
-        .rest-rating { display: flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 700; color: #1A1A1A; }
-        .rest-stars { color: #F86D1C; font-size: 13px; }
-        .rest-reviews { font-size: 11px; color: #999; font-weight: 400; }
-        .rest-city { font-size: 11px; color: #888; display: flex; align-items: center; gap: 3px; }
-        .chev { color: #CCC; flex-shrink: 0; }
+        .wrap { padding: 18px 20px; }
+        .dish-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .dish-card { background: #fff; border-radius: 16px; overflow: hidden; text-decoration: none; display: block; border: 1px solid #F0F0F0; }
+        .dish-img-wrap { position: relative; height: 160px; background: #F7F7F7; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .dish-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 18px; }
+        .dish-img-placeholder { font-size: 44px; }
+        .dish-info { padding: 10px 12px 12px; }
+        .dish-name { font-size: 14px; font-weight: 800; color: #1A1A1A; line-height: 1.3; }
+        .dish-cuisine { font-size: 12px; color: #888; margin-top: 3px; line-height: 1.3; min-height: 16px; }
+        .dish-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+        .dish-rating { display: flex; align-items: center; gap: 4px; }
+        .dish-stars { color: #F86D1C; font-size: 13px; }
+        .dish-rating-val { font-size: 13px; font-weight: 700; color: #1A1A1A; }
+        .dish-rating-count { font-size: 12px; color: #999; }
+        .dish-city { font-size: 11px; color: #888; display: flex; align-items: center; gap: 3px; }
         .empty { text-align: center; padding: 48px 0; color: #BBB; font-size: 14px; }
         .bottom-nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); background: #fff; border-radius: 24px; display: flex; justify-content: space-around; align-items: center; padding: 10px 8px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.12); border: 1px solid #F0F0F0; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; padding: 6px 20px; border-radius: 14px; }
         .nav-label { font-size: 10px; color: #999; font-weight: 500; }
         @media (min-width: 768px) {
-          .wrap { padding: 20px 40px; }
-          .rest-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+          .wrap { padding: 24px 40px; }
+          .dish-grid { grid-template-columns: repeat(5, 1fr); }
+          .dish-img-wrap { height: 180px; }
         }
         @media (min-width: 1200px) {
-          .wrap { padding: 24px 80px; }
-          .rest-list { grid-template-columns: repeat(3, 1fr); }
+          .wrap { padding: 28px 80px; }
+          .dish-img-wrap { height: 200px; }
         }
       `}</style>
 
@@ -71,28 +73,27 @@ export default async function RestaurantsPage() {
           {restaurants.length === 0 ? (
             <div className="empty">Restaurants coming soon!</div>
           ) : (
-            <div className="rest-list">
+            <div className="dish-grid">
               {restaurants.map((r) => (
-                <a key={r.id} href={'/restaurant/' + r.slug} className="rest-row">
-                  <div className="rest-logo">
-                    {r.logo_url ? <img src={r.logo_url} alt={r.name}/> : <span style={{ fontSize: 28 }}>🏪</span>}
+                <a key={r.id} href={'/restaurant/' + r.slug} className="dish-card">
+                  <div className="dish-img-wrap">
+                    {r.logo_url ? <img src={r.logo_url} alt={r.name}/> : <span className="dish-img-placeholder">🏪</span>}
                   </div>
-                  <div className="rest-body">
-                    <div className="rest-name">{r.name}</div>
-                    {r.cuisine_type?.length > 0 && <div className="rest-cuisine">{r.cuisine_type.join(' • ')}</div>}
-                    <div className="rest-meta">
-                      <span className="rest-rating">
-                        <span className="rest-stars">★</span>
-                        {r.avg_rating ? r.avg_rating.toFixed(1) : 'New'}
-                        {r.total_reviews > 0 && <span className="rest-reviews">({r.total_reviews})</span>}
-                      </span>
-                      <span className="rest-city">
+                  <div className="dish-info">
+                    <div className="dish-name">{r.name}</div>
+                    <div className="dish-cuisine">{r.cuisine_type?.length > 0 ? r.cuisine_type.join(' • ') : ''}</div>
+                    <div className="dish-bottom">
+                      <div className="dish-rating">
+                        <span className="dish-stars">★</span>
+                        <span className="dish-rating-val">{r.avg_rating ? r.avg_rating.toFixed(1) : 'New'}</span>
+                        {r.total_reviews > 0 && <span className="dish-rating-count">({r.total_reviews})</span>}
+                      </div>
+                      <div className="dish-city">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#888" strokeWidth="1.5"/></svg>
                         {r.city || 'Lahore'}
-                      </span>
+                      </div>
                     </div>
                   </div>
-                  <svg className="chev" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                 </a>
               ))}
             </div>
