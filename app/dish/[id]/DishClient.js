@@ -438,7 +438,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                   <a key={d.id} href={'/dish/' + d.id} className="sim-card">
                     <div className="sim-img">
                       {d.photo_url
-                        ? <img src={d.photo_url} alt={d.name}/>
+                        ? <img src={d.photo_url} alt={d.name} loading="lazy"/>
                         : <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg>
                       }
                     </div>

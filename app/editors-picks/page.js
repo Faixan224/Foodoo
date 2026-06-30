@@ -77,7 +77,7 @@ export default async function EditorsPicksPage() {
                 <a key={dish.id} href={'/dish/' + dish.id} className="dish-card">
                   <div className="dish-img-wrap">
                     {dish.photo_url
-                      ? <img src={dish.photo_url} alt={dish.name}/>
+                      ? <img src={dish.photo_url} alt={dish.name} loading="lazy"/>
                       : <div className="dish-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg></div>
                     }
                     <div className="dish-rank-badge">#{i + 1}</div>
