@@ -52,10 +52,18 @@ export default async function RestaurantPage({ params, searchParams }) {
     getTopDishIds()
   ])
 
-  const dishes = selectedCat ? allDishes.filter(d => d.category === selectedCat) : allDishes
-
   const rankMap = {}
   topDishIds.forEach(({ id, rank }) => { rankMap[id] = rank })
+
+  // Dishes with a (better) Editor's Picks rank show first, then the rest.
+  const ordered = [...allDishes].sort((a, b) => {
+    const ra = rankMap[a.id], rb = rankMap[b.id]
+    if (ra && rb) return ra - rb
+    if (ra) return -1
+    if (rb) return 1
+    return 0
+  })
+  const dishes = selectedCat ? ordered.filter(d => d.category === selectedCat) : ordered
 
   const categories = [...new Set(allDishes.map(d => d.category).filter(Boolean))]
 
