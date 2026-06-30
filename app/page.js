@@ -247,7 +247,10 @@ export default async function Home() {
         <div className="section">
           <div className="section-header">
             <div>
-              <div className="section-title">Top Restaurants</div>
+              <div className="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#F86D1C"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm0 2h14v2H5v-2z"/></svg>
+                Top Restaurants
+              </div>
               <div className="section-sub">Most loved restaurants by food lovers</div>
             </div>
             <a href="/restaurants" className="view-all">View all ›</a>
