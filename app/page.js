@@ -14,8 +14,9 @@ async function getTopRestaurants() {
     .from('restaurants')
     .select('id, name, slug, logo_url, avg_rating, total_reviews, cuisine_type')
     .eq('is_active', true)
-    .order('created_at', { ascending: false })
-    .limit(5)
+    .order('avg_rating', { ascending: false })
+    .order('total_reviews', { ascending: false })
+    .limit(10)
   return data || []
 }
 
