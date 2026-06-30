@@ -28,22 +28,22 @@ export default async function DishesPage() {
         .top-sub { font-size: 12px; color: #999; margin-top: 2px; font-weight: 400; }
         .wrap { padding: 18px 20px; }
         .dish-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-        .dish-card { background: #fff; border-radius: 16px; overflow: hidden; text-decoration: none; display: block; border: 1px solid #F0F0F0; }
-        .dish-img-wrap { position: relative; height: 160px; background: #F5F5F5; overflow: hidden; }
+        .dish-card { background: #fff; border-radius: 18px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+        .dish-img-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #fff; overflow: hidden; }
         .dish-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
-        .dish-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #1A1A1A; }
-        .dish-info { padding: 10px 12px 12px; }
-        .dish-name { font-size: 14px; font-weight: 700; color: #1A1A1A; line-height: 1.3; }
-        .dish-rating-row { display: flex; align-items: center; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
-        .dish-stars { color: #FF5B00; font-size: 13px; }
-        .dish-rating-val { font-size: 13px; font-weight: 700; color: #1A1A1A; }
+        .dish-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #F5F5F5; }
+        .dish-info { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
+        .dish-name { font-size: 15px; font-weight: 800; color: #1A1A1A; line-height: 1.3; }
+        .dish-rating-row { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+        .dish-stars { color: #F86D1C; font-size: 14px; }
+        .dish-rating-val { font-size: 14px; font-weight: 800; color: #1A1A1A; }
         .dish-rating-count { font-size: 12px; color: #999; }
-        .dish-rest-dot { color: #CCC; font-size: 12px; }
-        .dish-rest-name { font-size: 12px; color: #888; }
-        .dish-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
-        .dish-category-tag { font-size: 11px; color: #F86D1C; background: #FFF3ED; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
-        .dish-price { font-size: 12px; color: #555; font-weight: 500; }
-        .dish-save-btn { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .dish-rest-dot { font-size: 12px; color: #CCC; margin: 0 2px; }
+        .dish-rest-name { font-size: 12px; color: #999; }
+        .dish-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+        .dish-category-tag { background: #FFF3ED; color: #F86D1C; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+        .dish-price { font-size: 14px; color: #1A1A1A; font-weight: 900; }
+        .dish-save-btn { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
         .empty { text-align: center; padding: 48px 0; color: #BBB; font-size: 14px; }
         .bottom-nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); background: #fff; border-radius: 24px; display: flex; justify-content: space-around; align-items: center; padding: 10px 8px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.12); border: 1px solid #F0F0F0; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; padding: 6px 20px; border-radius: 14px; }
@@ -51,11 +51,9 @@ export default async function DishesPage() {
         @media (min-width: 768px) {
           .wrap { padding: 24px 40px; }
           .dish-grid { grid-template-columns: repeat(5, 1fr); }
-          .dish-img-wrap { height: 180px; }
         }
         @media (min-width: 1200px) {
           .wrap { padding: 28px 80px; }
-          .dish-img-wrap { height: 200px; }
         }
       `}</style>
 
