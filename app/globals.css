@@ -35,7 +35,9 @@ body {
 .dish-card .dish-img-wrap img,
 .dish-card img,
 .rest-card .rest-logo img,
-.rest-card img {
+.rest-card img,
+.sim-card .sim-img img,
+.sim-card img {
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   transform-origin: center;
   will-change: transform;
@@ -44,12 +46,14 @@ body {
 /* Desktop hover: lift the card + zoom its image */
 @media (hover: hover) {
   .dish-card,
-  .rest-card {
+  .rest-card,
+  .sim-card {
     transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.3s ease;
   }
   .dish-card:hover,
-  .rest-card:hover {
+  .rest-card:hover,
+  .sim-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 14px 32px rgba(0, 0, 0, 0.16);
   }
@@ -57,7 +61,9 @@ body {
   .dish-card:hover .dish-img-wrap img,
   .dish-card:hover img,
   .rest-card:hover .rest-logo img,
-  .rest-card:hover img {
+  .rest-card:hover img,
+  .sim-card:hover .sim-img img,
+  .sim-card:hover img {
     transform: scale(1.09);
   }
   .rate-btn:hover,
@@ -85,7 +91,8 @@ body {
 
 /* Touch / press feedback (works on mobile where hover doesn't) */
 .dish-card:active,
-.rest-card:active {
+.rest-card:active,
+.sim-card:active {
   transform: scale(0.98);
 }
 .rate-btn:active,
@@ -137,16 +144,17 @@ body {
 }
 .dish-grid > *,
 .rest-grid > *,
-.rest-scroll > * {
+.rest-scroll > *,
+.sim-scroll > * {
   animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
-.dish-grid > *:nth-child(2), .rest-grid > *:nth-child(2), .rest-scroll > *:nth-child(2) { animation-delay: 0.05s; }
-.dish-grid > *:nth-child(3), .rest-grid > *:nth-child(3), .rest-scroll > *:nth-child(3) { animation-delay: 0.10s; }
-.dish-grid > *:nth-child(4), .rest-grid > *:nth-child(4), .rest-scroll > *:nth-child(4) { animation-delay: 0.15s; }
-.dish-grid > *:nth-child(5), .rest-grid > *:nth-child(5), .rest-scroll > *:nth-child(5) { animation-delay: 0.20s; }
-.dish-grid > *:nth-child(6), .rest-grid > *:nth-child(6), .rest-scroll > *:nth-child(6) { animation-delay: 0.25s; }
-.dish-grid > *:nth-child(7), .rest-grid > *:nth-child(7), .rest-scroll > *:nth-child(7) { animation-delay: 0.30s; }
-.dish-grid > *:nth-child(n + 8), .rest-grid > *:nth-child(n + 8), .rest-scroll > *:nth-child(n + 8) { animation-delay: 0.35s; }
+.dish-grid > *:nth-child(2), .rest-grid > *:nth-child(2), .rest-scroll > *:nth-child(2), .sim-scroll > *:nth-child(2) { animation-delay: 0.05s; }
+.dish-grid > *:nth-child(3), .rest-grid > *:nth-child(3), .rest-scroll > *:nth-child(3), .sim-scroll > *:nth-child(3) { animation-delay: 0.10s; }
+.dish-grid > *:nth-child(4), .rest-grid > *:nth-child(4), .rest-scroll > *:nth-child(4), .sim-scroll > *:nth-child(4) { animation-delay: 0.15s; }
+.dish-grid > *:nth-child(5), .rest-grid > *:nth-child(5), .rest-scroll > *:nth-child(5), .sim-scroll > *:nth-child(5) { animation-delay: 0.20s; }
+.dish-grid > *:nth-child(6), .rest-grid > *:nth-child(6), .rest-scroll > *:nth-child(6), .sim-scroll > *:nth-child(6) { animation-delay: 0.25s; }
+.dish-grid > *:nth-child(7), .rest-grid > *:nth-child(7), .rest-scroll > *:nth-child(7), .sim-scroll > *:nth-child(7) { animation-delay: 0.30s; }
+.dish-grid > *:nth-child(n + 8), .rest-grid > *:nth-child(n + 8), .rest-scroll > *:nth-child(n + 8), .sim-scroll > *:nth-child(n + 8) { animation-delay: 0.35s; }
 
 /* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
