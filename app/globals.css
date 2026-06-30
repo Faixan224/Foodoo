@@ -24,3 +24,126 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* =========================================================
+   Foodoo micro-interactions (shared across all pages)
+   These target the common class names used by every page,
+   so adding them here animates the whole app at once.
+   ========================================================= */
+
+/* Smooth image scaling inside cards */
+.dish-card img,
+.rest-card img,
+.dish-img-wrap img,
+.rest-logo img {
+  transition: transform 0.4s ease;
+  will-change: transform;
+}
+
+/* Desktop hover: lift the card + zoom its image */
+@media (hover: hover) {
+  .dish-card,
+  .rest-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .dish-card:hover,
+  .rest-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  }
+  .dish-card:hover img,
+  .rest-card:hover img {
+    transform: scale(1.07);
+  }
+  .rate-btn:hover,
+  .submit-btn:hover,
+  .save-btn:hover,
+  .edit-btn:hover {
+    filter: brightness(1.06);
+  }
+  .cat-pill:hover,
+  .cat-btn:hover {
+    border-color: #f86d1c;
+  }
+  .view-all:hover {
+    opacity: 0.75;
+  }
+  .nav-item:hover {
+    background: #fff3ed;
+  }
+  .dish-save-btn:hover {
+    transform: scale(1.12);
+  }
+}
+
+/* Touch / press feedback (works on mobile where hover doesn't) */
+.dish-card:active,
+.rest-card:active {
+  transform: scale(0.985);
+}
+.rate-btn:active,
+.submit-btn:active,
+.save-btn:active,
+.edit-btn:active,
+.cat-pill:active,
+.cat-btn:active,
+.view-all:active,
+.back-btn:active,
+.search-btn:active,
+.tag:active {
+  transform: scale(0.95);
+}
+
+/* Consistent transition for interactive elements */
+.rate-btn,
+.submit-btn,
+.save-btn,
+.edit-btn,
+.cat-pill,
+.cat-btn,
+.view-all,
+.nav-item,
+.dish-save-btn,
+.back-btn,
+.search-btn,
+.tag {
+  transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease, border-color 0.2s ease, filter 0.2s ease;
+}
+
+/* Save-heart pop when a dish is saved */
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.45); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.dish-save-btn.pop svg {
+  animation: heart-pop 0.35s ease;
+}
+
+/* Cards fade up as they enter (staggered) */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.dish-grid > *,
+.rest-grid > *,
+.rest-scroll > * {
+  animation: fade-up 0.45s ease backwards;
+}
+.dish-grid > *:nth-child(2), .rest-grid > *:nth-child(2), .rest-scroll > *:nth-child(2) { animation-delay: 0.05s; }
+.dish-grid > *:nth-child(3), .rest-grid > *:nth-child(3), .rest-scroll > *:nth-child(3) { animation-delay: 0.10s; }
+.dish-grid > *:nth-child(4), .rest-grid > *:nth-child(4), .rest-scroll > *:nth-child(4) { animation-delay: 0.15s; }
+.dish-grid > *:nth-child(5), .rest-grid > *:nth-child(5), .rest-scroll > *:nth-child(5) { animation-delay: 0.20s; }
+.dish-grid > *:nth-child(6), .rest-grid > *:nth-child(6), .rest-scroll > *:nth-child(6) { animation-delay: 0.25s; }
+.dish-grid > *:nth-child(7), .rest-grid > *:nth-child(7), .rest-scroll > *:nth-child(7) { animation-delay: 0.30s; }
+.dish-grid > *:nth-child(n + 8), .rest-grid > *:nth-child(n + 8), .rest-scroll > *:nth-child(n + 8) { animation-delay: 0.35s; }
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
