@@ -1,0 +1,110 @@
+[
+  { "name": "Asian Wok", "slug": "asian-wok", "color": "c0392b", "cuisine": ["Pan-Asian","Chinese","Thai"], "desc": "Authentic pan-Asian wok dishes — bold, fresh and fiery.", "code": "AW", "dishes": [
+    ["Chicken Spring Rolls","Appetizer",550,"starter","Crispy rolls stuffed with seasoned chicken and veggies"],
+    ["Hot & Sour Soup","Soup",450,"starter","Classic spicy and tangy soup with chicken and egg"],
+    ["Chicken Manchurian","Chinese",900,"chicken","Fried chicken tossed in tangy Manchurian sauce"],
+    ["Beef Chilli Dry","Chinese",1100,"beef","Wok-tossed beef strips with peppers and chilli"],
+    ["Garlic Prawns","Seafood",1200,"seafood","Juicy prawns in a rich garlic butter sauce"],
+    ["Singaporean Rice","Rice",950,"side","Curried rice topped with noodles and chicken"],
+    ["Chicken Chow Mein","Noodles",850,"noodle","Stir-fried noodles with chicken and vegetables"],
+    ["Thai Red Curry","Chinese",1150,"curry","Creamy coconut red curry with chicken"],
+    ["Honey Chilli Potato","Appetizer",600,"starter","Crispy potato in sweet and spicy glaze"],
+    ["Chocolate Mousse","Desserts",500,"dessert","Silky dark chocolate mousse"]
+  ]},
+  { "name": "P.F. Chang's", "slug": "pf-changs", "color": "8e44ad", "cuisine": ["Asian","Chinese"], "desc": "Modern Asian dining — signature wok classics and more.", "code": "PFC", "dishes": [
+    ["Dynamite Shrimp","Appetizer",1400,"seafood","Crispy shrimp tossed in creamy spicy sauce"],
+    ["Chicken Lettuce Wraps","Appetizer",1300,"chicken","Wok-seared chicken in crisp lettuce cups"],
+    ["Mongolian Beef","Meat",2200,"beef","Wok-seared beef with scallions and garlic"],
+    ["Kung Pao Chicken","Chinese",1900,"chicken","Spicy chicken with peanuts and chillies"],
+    ["Pad Thai","Noodles",1700,"noodle","Rice noodles with egg, peanuts and lime"],
+    ["Salt & Pepper Prawns","Seafood",2100,"seafood","Crispy prawns with garlic, salt and pepper"],
+    ["Chang's Fried Rice","Rice",1500,"side","Signature fried rice with egg and vegetables"],
+    ["Honey Chicken","Chinese",1850,"chicken","Crispy chicken glazed in honey sauce"],
+    ["Vegetable Spring Rolls","Appetizer",900,"starter","Golden rolls filled with fresh vegetables"],
+    ["Banana Spring Rolls","Desserts",800,"dessert","Warm banana rolls with caramel and ice cream"]
+  ]},
+  { "name": "Arcadian Cafe", "slug": "arcadian-cafe", "color": "16a085", "cuisine": ["Continental","Cafe","Breakfast"], "desc": "All-day continental cafe — brunch, coffee and comfort food.", "code": "ARC", "dishes": [
+    ["Eggs Benedict","Breakfast",1200,"breakfast","Poached eggs and hollandaise on toasted muffin"],
+    ["Classic Beef Burger","Burgers",1500,"burger","Juicy beef patty with cheese and house sauce"],
+    ["Grilled Chicken Panini","Sandwich",1100,"sandwich","Pressed panini with grilled chicken and pesto"],
+    ["Caesar Salad","Salad",950,"veg","Crisp romaine, parmesan and creamy dressing"],
+    ["Pancake Stack","Breakfast",1000,"breakfast","Fluffy pancakes with maple syrup and berries"],
+    ["Creamy Alfredo Pasta","Pasta",1400,"pasta","Fettuccine in a rich parmesan cream sauce"],
+    ["Fish & Chips","Seafood",1600,"seafood","Beer-battered fish with crispy fries"],
+    ["Mushroom Soup","Soup",700,"starter","Velvety cream of mushroom soup"],
+    ["Cappuccino","Drinks",550,"dessert","Rich espresso topped with steamed milk foam"],
+    ["New York Cheesecake","Desserts",850,"dessert","Classic baked cheesecake with berry compote"]
+  ]},
+  { "name": "Coco Cubano", "slug": "coco-cubano", "color": "d35400", "cuisine": ["Cuban","Latin","Cafe"], "desc": "Vibrant Cuban and Latin flavours with an island vibe.", "code": "COC", "dishes": [
+    ["Cuban Sandwich","Sandwich",1300,"sandwich","Roast pork, ham, pickles and cheese pressed warm"],
+    ["Beef Empanadas","Appetizer",900,"starter","Golden pastry filled with spiced beef"],
+    ["Ropa Vieja","Meat",1900,"beef","Slow-cooked shredded beef in tomato sauce"],
+    ["Grilled Cuban Chicken","Meat",1700,"chicken","Citrus-marinated grilled chicken"],
+    ["Latin Prawn Skewers","Seafood",2000,"seafood","Char-grilled prawns with garlic and lime"],
+    ["Loaded Nachos","Appetizer",1100,"starter","Tortilla chips loaded with cheese and salsa"],
+    ["Cuban Rice & Beans","Rice",850,"side","Classic black beans over seasoned rice"],
+    ["Churros con Chocolate","Desserts",750,"dessert","Crispy churros with warm chocolate dip"],
+    ["Mojito Mocktail","Drinks",600,"dessert","Fresh mint, lime and soda — alcohol free"],
+    ["Tres Leches Cake","Desserts",800,"dessert","Sponge soaked in three milks, light and sweet"]
+  ]},
+  { "name": "Fuoco", "slug": "fuoco", "color": "b03a2e", "cuisine": ["Italian","Pizza","Pasta"], "desc": "Wood-fired Italian — pizzas, pastas and dolci.", "code": "FUO", "dishes": [
+    ["Bruschetta","Appetizer",800,"starter","Toasted bread with tomato, basil and olive oil"],
+    ["Margherita Pizza","Pizza",1400,"pizza","San Marzano tomato, mozzarella and basil"],
+    ["Pepperoni Pizza","Pizza",1700,"pizza","Loaded with pepperoni and melted mozzarella"],
+    ["Spaghetti Bolognese","Pasta",1500,"pasta","Slow-cooked beef ragu over spaghetti"],
+    ["Penne Arrabbiata","Pasta",1400,"pasta","Penne in a spicy tomato and garlic sauce"],
+    ["Chicken Lasagna","Pasta",1800,"pasta","Layered pasta with chicken and bechamel"],
+    ["Cheese Garlic Bread","Appetizer",650,"starter","Warm garlic bread topped with mozzarella"],
+    ["Grilled Salmon","Seafood",2400,"seafood","Pan-seared salmon with lemon butter"],
+    ["Minestrone Soup","Soup",700,"starter","Hearty Italian vegetable and bean soup"],
+    ["Tiramisu","Desserts",850,"dessert","Coffee-soaked layers with mascarpone cream"]
+  ]},
+  { "name": "The Carnivore", "slug": "the-carnivore", "color": "4a2c2a", "cuisine": ["Steakhouse","BBQ","Grill"], "desc": "A meat-lovers paradise — premium steaks and smoky BBQ.", "code": "CAR", "dishes": [
+    ["Tenderloin Steak","Steak",3200,"beef","Prime tenderloin grilled to your liking"],
+    ["T-Bone Steak","Steak",3800,"beef","Bold T-bone with peppercorn sauce"],
+    ["BBQ Beef Ribs","BBQ",2900,"beef","Smoky slow-cooked ribs in BBQ glaze"],
+    ["Grilled Lamb Chops","Meat",3400,"lamb","Herb-marinated lamb chops, char-grilled"],
+    ["Smoked Beef Brisket","BBQ",2700,"beef","12-hour smoked brisket, tender and juicy"],
+    ["Buffalo Wings","Appetizer",1100,"chicken","Crispy wings tossed in spicy buffalo sauce"],
+    ["Loaded Steak Fries","Appetizer",900,"starter","Fries topped with cheese and beef"],
+    ["Grilled Chicken Steak","Meat",1900,"chicken","Grilled chicken breast with mushroom sauce"],
+    ["Garden Caesar Salad","Salad",950,"veg","Crisp greens with parmesan and croutons"],
+    ["Chocolate Brownie","Desserts",700,"dessert","Warm fudge brownie with vanilla ice cream"]
+  ]},
+  { "name": "Paola's Cosa Nostra", "slug": "paolas-cosa-nostra", "color": "1e8449", "cuisine": ["Italian","Pizza"], "desc": "Family-style Italian — hand-tossed pizzas and rich pastas.", "code": "PAO", "dishes": [
+    ["Quattro Formaggi Pizza","Pizza",1900,"pizza","Four cheese pizza with a golden crust"],
+    ["BBQ Chicken Pizza","Pizza",1800,"pizza","Smoky BBQ chicken with onions and cheese"],
+    ["Fettuccine Alfredo","Pasta",1600,"pasta","Creamy parmesan fettuccine"],
+    ["Lasagna al Forno","Pasta",1750,"pasta","Oven-baked layered lasagna with beef ragu"],
+    ["Caprese Salad","Salad",1000,"veg","Tomato, mozzarella and basil drizzled with oil"],
+    ["Arancini Balls","Appetizer",850,"starter","Crispy fried risotto balls with mozzarella"],
+    ["Seafood Risotto","Seafood",2200,"seafood","Creamy risotto with mixed seafood"],
+    ["Calzone","Pizza",1700,"pizza","Folded pizza stuffed with cheese and chicken"],
+    ["Garlic Focaccia","Appetizer",600,"starter","Soft focaccia with garlic and rosemary"],
+    ["Panna Cotta","Desserts",800,"dessert","Silky vanilla cream with berry coulis"]
+  ]},
+  { "name": "Haveli Restaurant", "slug": "haveli", "color": "a04000", "cuisine": ["Pakistani","Desi","BBQ"], "desc": "Traditional Pakistani cuisine — desi BBQ and rich curries.", "code": "HAV", "dishes": [
+    ["Chicken Seekh Kebab","BBQ",950,"chicken","Char-grilled minced chicken seekh kebabs"],
+    ["Mutton Karahi","Meat",2600,"lamb","Tender mutton cooked in a spicy tomato karahi"],
+    ["Chicken Biryani","Rice",850,"biryani","Aromatic basmati rice layered with spiced chicken"],
+    ["Beef Nihari","Meat",1100,"curry","Slow-cooked beef shank in rich spiced gravy"],
+    ["Seekh Kebab Roll","Sandwich",600,"sandwich","Seekh kebab wrapped with chutney and onions"],
+    ["Dal Makhani","Appetizer",700,"veg","Creamy black lentils slow-cooked with butter"],
+    ["Chicken Tikka","BBQ",1000,"chicken","Smoky bone-in chicken tikka"],
+    ["Mutton Pulao","Rice",1200,"biryani","Fragrant pulao cooked with tender mutton"],
+    ["Garlic Naan","Appetizer",150,"starter","Clay-oven naan brushed with garlic butter"],
+    ["Gulab Jamun","Desserts",400,"dessert","Soft milk dumplings in rose syrup"]
+  ]},
+  { "name": "Monal Lahore", "slug": "monal", "color": "283747", "cuisine": ["Pakistani","Continental","BBQ"], "desc": "Fine dining with a view — desi BBQ and continental favourites.", "code": "MON", "dishes": [
+    ["Chicken Malai Boti","BBQ",1300,"chicken","Creamy marinated grilled chicken boti"],
+    ["Mutton Champ","BBQ",2800,"lamb","Tender grilled mutton chops, desi spiced"],
+    ["Chicken Karahi","Meat",1800,"chicken","Classic chicken karahi with fresh tomatoes"],
+    ["Beef Pulao","Rice",1100,"biryani","Fragrant rice cooked with tender beef"],
+    ["Fish Tikka","Seafood",1900,"seafood","Spiced grilled fish, crisp on the outside"],
+    ["Grilled Chicken Continental","Meat",1700,"chicken","Grilled chicken with creamy mushroom sauce"],
+    ["Mixed Grill Platter","BBQ",3200,"beef","Assorted BBQ — kebabs, tikka and chops"],
+    ["Hummus & Pita","Appetizer",800,"starter","Creamy hummus with warm pita bread"],
+    ["Mango Lassi","Drinks",450,"dessert","Chilled yogurt drink blended with mango"],
+    ["Kheer","Desserts",450,"dessert","Traditional rice pudding with nuts"]
+  ]}
+]
