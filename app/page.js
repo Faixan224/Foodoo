@@ -1,11 +1,15 @@
 import { supabase } from '../lib/supabase'
+import { MIN_RANK_REVIEWS } from '../lib/ranking'
 import SaveButton from './SaveButton'
+
+// Render on every request so newly submitted reviews are reflected immediately.
+export const dynamic = 'force-dynamic'
 
 async function getTopDishes() {
   const { data: ranked } = await supabase
     .from('dishes')
     .select('id, name, category, photo_url, avg_rating, total_reviews, weighted_score, price, restaurants(name)')
-    .gt('weighted_score', 0)
+    .gte('total_reviews', MIN_RANK_REVIEWS)
     .order('weighted_score', { ascending: false })
     .limit(8)
 
@@ -17,7 +21,7 @@ async function getTopDishes() {
     const { data } = await supabase
       .from('dishes')
       .select('id, name, category, photo_url, avg_rating, total_reviews, weighted_score, price, restaurants(name)')
-      .eq('weighted_score', 0)
+      .lt('total_reviews', MIN_RANK_REVIEWS)
       .order('created_at', { ascending: false })
       .limit(needed)
     unranked = (data || []).filter(d => !rankedIds.includes(d.id))
@@ -96,7 +100,7 @@ export default async function Home() {
         .section-sub { font-size: 12px; color: #999; margin-top: 2px; font-weight: 400; }
         .view-all { font-size: 13px; color: #F86D1C; font-weight: 600; text-decoration: none; }
 
-        .dish-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-bottom: 20px; }
+        .dish-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding-bottom: 20px; }
         .dish-card { background: #fff; border-radius: 18px; overflow: hidden; text-decoration: none; display: flex; flex-direction: column; box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
         .dish-img-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #fff; overflow: hidden; }
         .dish-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }

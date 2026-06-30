@@ -62,7 +62,7 @@ export default function SavedPage() {
         .explore-btn { background: #F86D1C; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 20px; font-size: 14px; font-weight: 700; display: inline-block; }
         .count-text { font-size: 13px; color: #999; margin-bottom: 16px; }
 
-        .bottom-nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 160px); background: #fff; border-radius: 24px; display: flex; justify-content: space-around; align-items: center; padding: 10px 8px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.12); border: 1px solid #F0F0F0; }
+        .bottom-nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); background: #fff; border-radius: 24px; display: flex; justify-content: space-around; align-items: center; padding: 10px 8px; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.12); border: 1px solid #F0F0F0; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; padding: 6px 20px; border-radius: 14px; transition: background 0.15s; }
         .nav-item.active { background: #FFF3ED; }
         .nav-label { font-size: 10px; color: #999; font-weight: 500; }

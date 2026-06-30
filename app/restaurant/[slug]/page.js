@@ -1,4 +1,5 @@
 import { supabase } from '../../../lib/supabase'
+import { MIN_RANK_REVIEWS } from '../../../lib/ranking'
 import BackButton from './BackButton'
 
 async function getRestaurant(slug) {
@@ -17,14 +18,22 @@ async function getRestaurantDishes(restaurantId) {
     .eq('restaurant_id', restaurantId)
     .eq('status', 'active')
     .order('weighted_score', { ascending: false })
-  return data || []
+
+  // List dishes that qualify for ranking (enough reviews) first, ordered by
+  // weighted_score, then the rest — so the menu order matches the rank badges.
+  return (data || []).slice().sort((a, b) => {
+    const aRanked = (a.total_reviews || 0) >= MIN_RANK_REVIEWS
+    const bRanked = (b.total_reviews || 0) >= MIN_RANK_REVIEWS
+    if (aRanked !== bRanked) return aRanked ? -1 : 1
+    return (b.weighted_score || 0) - (a.weighted_score || 0)
+  })
 }
 
 async function getTopDishIds() {
   const { data } = await supabase
     .from('dishes')
     .select('id')
-    .gt('weighted_score', 0)
+    .gte('total_reviews', MIN_RANK_REVIEWS)
     .order('weighted_score', { ascending: false })
     .limit(10)
   return (data || []).map((d, i) => ({ id: d.id, rank: i + 1 }))

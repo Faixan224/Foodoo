@@ -45,6 +45,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const [nickname, setNickname] = useState('')
   const [phone, setPhone] = useState('')
   const [showPhoneInput, setShowPhoneInput] = useState(false)
+  const [contactFromProfile, setContactFromProfile] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
@@ -83,6 +84,22 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
     setLikedReviews(prev => ({ ...prev, [reviewId]: !prev[reviewId] }))
   }
 
+  // Pull the reviewer's name + contact from their saved profile so they don't
+  // have to re-enter it. Phone takes priority over email.
+  const prefillFromProfile = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('foodoo_profile') || 'null')
+      if (!saved) return
+      if (saved.name) setNickname(saved.name)
+      const contact = saved.phone || saved.email
+      if (contact) {
+        setPhone(contact)
+        setShowPhoneInput(true)
+        setContactFromProfile(true)
+      }
+    } catch {}
+  }
+
   const openReviewSheet = () => {
     const lastReview = localStorage.getItem('review_' + dish.id)
     if (lastReview) {
@@ -95,6 +112,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
       }
     }
     setAlreadyReviewed(false)
+    prefillFromProfile()
     setShowReview(true)
   }
 
@@ -120,7 +138,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const resetSheet = () => {
     setShowReview(false); setSubmitted(false); setAlreadyReviewed(false)
     setStars(0); setTasteStars(0); setPortionStars(0); setValueStars(0)
-    setTags([]); setComment(''); setNickname(''); setPhone(''); setShowPhoneInput(false)
+    setTags([]); setComment(''); setNickname(''); setPhone(''); setShowPhoneInput(false); setContactFromProfile(false)
   }
 
   const rating = dish.avg_rating || 0
@@ -575,7 +593,10 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                   </div>
                 ) : (
                   <>
-                    <input className="phone-input" placeholder="03XXXXXXXXX or email" value={phone} onChange={e => setPhone(e.target.value)} type="tel" autoFocus/>
+                    <input className="phone-input" placeholder="03XXXXXXXXX or email" value={phone} onChange={e => { setPhone(e.target.value); setContactFromProfile(false) }} type="tel" autoFocus={!contactFromProfile}/>
+                    {contactFromProfile && (
+                      <div style={{ fontSize: 12, color: '#888', marginTop: 2, marginBottom: 6 }}>Auto-filled from your profile</div>
+                    )}
                     {phone.length > 0 && (() => {
                       const pkValid = /^(03\d{9}|\+923\d{9}|00923\d{9})$/.test(phone.replace(/\s+/g, ''))
                       const emailValid = /^[^\s@]+@[^\s@]+\.(com|net|org|pk|edu|gov|io|co\.pk|com\.pk)$/i.test(phone)
