@@ -34,8 +34,7 @@ const StarRating = ({ value, onChange, size = 32, showLabel = false }) => {
 
 export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const [showReview, setShowReview] = useState(false)
-  const [alreadyReviewed, setAlreadyReviewed] = useState(false)
-  const [hoursLeft, setHoursLeft] = useState(0)
+  const [blockInfo, setBlockInfo] = useState(null)
   const [stars, setStars] = useState(0)
   const [tasteStars, setTasteStars] = useState(0)
   const [portionStars, setPortionStars] = useState(0)
@@ -139,18 +138,40 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
     } catch {}
   }
 
-  const openReviewSheet = () => {
-    const lastReview = localStorage.getItem('review_' + dish.id)
-    if (lastReview) {
-      const diff = Date.now() - parseInt(lastReview)
+  // Returns a block message + wait time if the user can't review right now
+  const computeBlock = () => {
+    const now = Date.now()
+    const hrs = h => `Come back in ${h} hour${h !== 1 ? 's' : ''}`
+    const days = d => `Come back in ${d} day${d !== 1 ? 's' : ''}`
+
+    // 1 review per dish / 24h
+    const last = localStorage.getItem('review_' + dish.id)
+    if (last) {
+      const diff = now - parseInt(last)
       if (diff < 86400000) {
-        setHoursLeft(Math.ceil((86400000 - diff) / 3600000))
-        setAlreadyReviewed(true)
-        setShowReview(true)
-        return
+        return { title: 'Already reviewed', sub: 'You can review this dish once every 24 hours.', wait: hrs(Math.ceil((86400000 - diff) / 3600000)) }
       }
     }
-    setAlreadyReviewed(false)
+
+    let times = []
+    try { times = JSON.parse(localStorage.getItem('foodoo_review_times') || '[]') } catch {}
+    // 3 reviews / 24h
+    const day = times.filter(t => now - t < 86400000).sort((a, b) => a - b)
+    if (day.length >= 3) {
+      return { title: 'Daily limit reached', sub: 'You can post up to 3 reviews per day.', wait: hrs(Math.max(1, Math.ceil((day[0] + 86400000 - now) / 3600000))) }
+    }
+    // 10 reviews / 30 days
+    const month = times.filter(t => now - t < 2592000000).sort((a, b) => a - b)
+    if (month.length >= 10) {
+      return { title: 'Monthly limit reached', sub: 'You can post up to 10 reviews per month.', wait: days(Math.max(1, Math.ceil((month[0] + 2592000000 - now) / 86400000))) }
+    }
+    return null
+  }
+
+  const openReviewSheet = () => {
+    const block = computeBlock()
+    if (block) { setBlockInfo(block); setShowReview(true); return }
+    setBlockInfo(null)
     prefillFromProfile()
     setShowReview(true)
   }
@@ -158,12 +179,8 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const submitReview = async () => {
     if (stars === 0) { setError('Please give an overall rating'); return }
     // Rate limits (device-level; DB also enforces the same per phone)
-    const now = Date.now()
-    let times = []
-    try { times = JSON.parse(localStorage.getItem('foodoo_review_times') || '[]') } catch {}
-    times = times.filter(t => now - t < 2592000000) // keep last 30 days
-    if (times.filter(t => now - t < 86400000).length >= 3) { setError('You can post up to 3 reviews per day. Please try again later.'); return }
-    if (times.length >= 10) { setError('You can post up to 10 reviews per month.'); return }
+    const block = computeBlock()
+    if (block) { setBlockInfo(block); return }
     setSubmitting(true)
     setError('')
     const phoneHash = phone ? btoa(phone).slice(0, 32) : 'anon-' + Math.random().toString(36).slice(2, 10)
@@ -180,7 +197,11 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
     })
     if (err) { setError(err.message); setSubmitting(false) }
     else {
-      localStorage.setItem('review_' + dish.id, Date.now().toString())
+      const now = Date.now()
+      localStorage.setItem('review_' + dish.id, now.toString())
+      let times = []
+      try { times = JSON.parse(localStorage.getItem('foodoo_review_times') || '[]') } catch {}
+      times = times.filter(t => now - t < 2592000000)
       times.push(now)
       localStorage.setItem('foodoo_review_times', JSON.stringify(times))
       setSubmitted(true)
@@ -189,7 +210,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   }
 
   const resetSheet = () => {
-    setShowReview(false); setSubmitted(false); setAlreadyReviewed(false)
+    setShowReview(false); setSubmitted(false); setBlockInfo(null)
     setStars(0); setTasteStars(0); setPortionStars(0); setValueStars(0)
     setTags([]); setComment(''); setNickname(''); setPhone(''); setShowPhoneInput(false); setContactFromProfile(false); setReviewPhoto('')
   }
@@ -527,17 +548,12 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
       <div className={'sheet' + (showReview ? ' open' : '')}>
         <div className="sheet-handle"></div>
 
-        {alreadyReviewed ? (
+        {blockInfo ? (
           <div style={{ textAlign: 'center', padding: '48px 24px' }}>
             <div style={{ fontSize: 52, marginBottom: 16 }}>⏰</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>Already Reviewed!</div>
-            <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>You reviewed this dish recently.</div>
-            <div style={{ fontSize: 13, color: '#F86D1C', fontWeight: 600, marginBottom: 24 }}>Come back in {hoursLeft} hour{hoursLeft !== 1 ? 's' : ''}</div>
-            <div style={{ background: '#FFF3ED', borderRadius: 14, padding: '14px 16px', marginBottom: 28, textAlign: 'left' }}>
-              <div style={{ fontSize: 13, color: '#888', marginBottom: 4 }}>Your next review for</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>{dish.name}</div>
-              <div style={{ fontSize: 13, color: '#F86D1C' }}>{dish.restaurants?.name}</div>
-            </div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>{blockInfo.title}</div>
+            <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>{blockInfo.sub}</div>
+            <div style={{ fontSize: 15, color: '#F86D1C', fontWeight: 700, marginBottom: 28 }}>{blockInfo.wait}</div>
             <button onClick={resetSheet} style={{ background: '#F86D1C', color: '#fff', border: 'none', borderRadius: 14, padding: '14px', fontWeight: 700, fontSize: 15, cursor: 'pointer', width: '100%' }}>
               Got it
             </button>
