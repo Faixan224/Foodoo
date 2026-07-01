@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 
 const StarRating = ({ value, onChange, size = 32, showLabel = false }) => {
@@ -52,6 +52,45 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [likedReviews, setLikedReviews] = useState({})
   const [isSaved, setIsSaved] = useState(false)
+  const [reviewPhoto, setReviewPhoto] = useState('')
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const photoInputRef = useRef(null)
+
+  // Compress + upload a review photo to Supabase Storage, keep the public URL
+  const onPhotoChange = async (e) => {
+    const file = e.target.files && e.target.files[0]
+    if (!file) return
+    setUploadingPhoto(true); setError('')
+    try {
+      const blob = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const img = new Image()
+          img.onload = () => {
+            const scale = Math.min(1, 900 / img.width)
+            const w = Math.round(img.width * scale), h = Math.round(img.height * scale)
+            const canvas = document.createElement('canvas')
+            canvas.width = w; canvas.height = h
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+            canvas.toBlob(b => b ? resolve(b) : reject(new Error('compress failed')), 'image/jpeg', 0.82)
+          }
+          img.onerror = reject
+          img.src = reader.result
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const path = 'reviews/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.jpg'
+      const { error: upErr } = await supabase.storage.from('review-photos').upload(path, blob, { contentType: 'image/jpeg' })
+      if (upErr) throw upErr
+      const { data } = supabase.storage.from('review-photos').getPublicUrl(path)
+      setReviewPhoto(data.publicUrl)
+    } catch (err) {
+      setError('Photo upload failed — you can still submit your review.')
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('foodoo_saved') || '[]')
@@ -135,6 +174,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
       nickname: nickname.trim() || null,
       stars,
       comment: comment || null, tags: tags.length > 0 ? tags : null,
+      photo_url: reviewPhoto || null,
       source: 'web', is_verified: isVerified, weight: isVerified ? 3.0 : 1.0
     })
     if (err) { setError(err.message); setSubmitting(false) }
@@ -150,7 +190,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const resetSheet = () => {
     setShowReview(false); setSubmitted(false); setAlreadyReviewed(false)
     setStars(0); setTasteStars(0); setPortionStars(0); setValueStars(0)
-    setTags([]); setComment(''); setNickname(''); setPhone(''); setShowPhoneInput(false); setContactFromProfile(false)
+    setTags([]); setComment(''); setNickname(''); setPhone(''); setShowPhoneInput(false); setContactFromProfile(false); setReviewPhoto('')
   }
 
   const rating = dish.avg_rating || 0
@@ -413,6 +453,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                       </div>
                     </div>
                     {r.comment && <div className="rev-text">{r.comment}</div>}
+                    {r.photo_url && <img src={r.photo_url} alt="review" loading="lazy" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 12, marginTop: 8 }}/>}
                     <div className="rev-bottom">
                       <button className={'like-btn' + (likedReviews[r.id] ? ' liked' : '')} onClick={() => toggleLike(r.id)}>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -581,12 +622,26 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                 <div style={{ fontSize: 11, color: '#BBB', textAlign: 'right', marginTop: 4 }}>{comment.length}/500</div>
               </div>
               <div style={{ marginBottom: 20 }}>
-                <div className="field-label">Add Photos / Videos <span className="field-sublabel">(optional)</span></div>
-                <div className="photo-box">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#CCC" strokeWidth="1.5"/><circle cx="12" cy="12" r="3" stroke="#CCC" strokeWidth="1.5"/><path d="M3 9l4-4h2" stroke="#CCC" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                  <div className="photo-box-text">Add Photo / Video</div>
-                  <div className="photo-box-sub">Share up to 5 photos or a video</div>
-                </div>
+                <div className="field-label">Add a Photo <span className="field-sublabel">(optional)</span></div>
+                {reviewPhoto ? (
+                  <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden' }}>
+                    <img src={reviewPhoto} alt="review" style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}/>
+                    <button type="button" onClick={() => setReviewPhoto('')} style={{ position: 'absolute', top: 8, right: 8, width: 30, height: 30, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15 }}>✕</button>
+                  </div>
+                ) : (
+                  <div className="photo-box" onClick={() => !uploadingPhoto && photoInputRef.current && photoInputRef.current.click()}>
+                    {uploadingPhoto ? (
+                      <div className="photo-box-text">Uploading…</div>
+                    ) : (
+                      <>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#CCC" strokeWidth="1.5"/><circle cx="12" cy="12" r="3" stroke="#CCC" strokeWidth="1.5"/><path d="M3 9l4-4h2" stroke="#CCC" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                        <div className="photo-box-text">Add Photo</div>
+                        <div className="photo-box-sub">Take a photo or choose from gallery</div>
+                      </>
+                    )}
+                  </div>
+                )}
+                <input ref={photoInputRef} type="file" accept="image/*" onChange={onPhotoChange} style={{ display: 'none' }}/>
               </div>
               <div style={{ marginBottom: 20 }}>
                 <div className="field-label">Your Name <span className="field-sublabel">(optional)</span></div>
