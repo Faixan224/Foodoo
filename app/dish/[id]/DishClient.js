@@ -144,12 +144,13 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
     const hrs = h => `Come back in ${h} hour${h !== 1 ? 's' : ''}`
     const days = d => `Come back in ${d} day${d !== 1 ? 's' : ''}`
 
-    // 1 review per dish / 24h
+    // 1 review per dish / 7 days
+    const WEEK = 604800000
     const last = localStorage.getItem('review_' + dish.id)
     if (last) {
       const diff = now - parseInt(last)
-      if (diff < 86400000) {
-        return { title: 'Already reviewed', sub: 'You can review this dish once every 24 hours.', wait: hrs(Math.ceil((86400000 - diff) / 3600000)) }
+      if (diff < WEEK) {
+        return { title: 'Already reviewed', sub: 'You can review the same dish once a week.', wait: days(Math.max(1, Math.ceil((WEEK - diff) / 86400000))) }
       }
     }
 

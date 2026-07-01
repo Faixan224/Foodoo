@@ -297,13 +297,13 @@ $func$
 DECLARE
   v_count INTEGER;
 BEGIN
-  -- 1 review per dish per phone / 24h
+  -- 1 review per dish per phone / 7 days
   SELECT COUNT(*) INTO v_count FROM reviews
   WHERE phone_hash = NEW.phone_hash
     AND dish_id = NEW.dish_id
-    AND created_at > NOW() - INTERVAL '24 hours';
+    AND created_at > NOW() - INTERVAL '7 days';
   IF v_count >= 1 THEN
-    RAISE EXCEPTION 'You have already reviewed this dish in the last 24 hours';
+    RAISE EXCEPTION 'You can review the same dish once a week';
   END IF;
 
   -- Max 3 reviews per phone / 24h (overall)
