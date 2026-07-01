@@ -118,6 +118,12 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
 
   const submitReview = async () => {
     if (stars === 0) { setError('Please give an overall rating'); return }
+    // Overall limit: max 3 reviews per 24h (device-level; DB enforces per phone)
+    const now = Date.now()
+    let times = []
+    try { times = JSON.parse(localStorage.getItem('foodoo_review_times') || '[]') } catch {}
+    times = times.filter(t => now - t < 86400000)
+    if (times.length >= 3) { setError('You can post up to 3 reviews per day. Please try again later.'); return }
     setSubmitting(true)
     setError('')
     const phoneHash = phone ? btoa(phone).slice(0, 32) : 'anon-' + Math.random().toString(36).slice(2, 10)
@@ -134,6 +140,8 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
     if (err) { setError(err.message); setSubmitting(false) }
     else {
       localStorage.setItem('review_' + dish.id, Date.now().toString())
+      times.push(now)
+      localStorage.setItem('foodoo_review_times', JSON.stringify(times))
       setSubmitted(true)
       window.dispatchEvent(new Event('foodoo:rank-check'))
     }

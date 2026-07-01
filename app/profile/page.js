@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 
 const RANKS = [
@@ -51,6 +51,33 @@ export default function ProfilePage() {
   const [myReviews, setMyReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [showRanks, setShowRanks] = useState(false)
+  const avatarInputRef = useRef(null)
+
+  // Upload & set profile picture (compressed, stored on-device in localStorage)
+  const onAvatarChange = (e) => {
+    const file = e.target.files && e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const img = new Image()
+      img.onload = () => {
+        const size = 256
+        const canvas = document.createElement('canvas')
+        canvas.width = size; canvas.height = size
+        const ctx = canvas.getContext('2d')
+        const min = Math.min(img.width, img.height)
+        const sx = (img.width - min) / 2, sy = (img.height - min) / 2
+        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size)
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+        const updated = { ...(profile || form), avatar_url: dataUrl, joined: profile?.joined || new Date().toISOString() }
+        localStorage.setItem('foodoo_profile', JSON.stringify(updated))
+        setProfile(updated)
+        setForm(f => ({ ...f, avatar_url: dataUrl }))
+      }
+      img.src = reader.result
+    }
+    reader.readAsDataURL(file)
+  }
 
   useEffect(() => {
     const saved = localStorage.getItem('foodoo_profile')
@@ -189,12 +216,7 @@ export default function ProfilePage() {
             </svg>
           </a>
           <span className="top-title">Profile</span>
-          <button className="icon-btn" onClick={() => setEditing(true)}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#555" strokeWidth="2" strokeLinecap="round"/>
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#555" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
+          <div style={{ width: 36 }} />
         </div>
 
         {editing ? (
@@ -229,20 +251,19 @@ export default function ProfilePage() {
           <>
             <div className="hero-section">
               <div className="avatar">
-                {getInitials(profile?.name)}
-                <div className="avatar-edit" onClick={() => setEditing(true)}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                    <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke="#555" strokeWidth="2" strokeLinecap="round"/>
+                {profile?.avatar_url
+                  ? <img src={profile.avatar_url} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  : getInitials(profile?.name)}
+                <div className="avatar-edit" onClick={() => avatarInputRef.current && avatarInputRef.current.click()}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="13" r="4" stroke="#555" strokeWidth="2"/>
                   </svg>
                 </div>
+                <input ref={avatarInputRef} type="file" accept="image/*" onChange={onAvatarChange} style={{ display: 'none' }} />
               </div>
               <div className="profile-name">
                 {profile?.name}
-                <span className="edit-icon" onClick={() => setEditing(true)}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke="#F86D1C" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                </span>
               </div>
               {profile?.email && <div className="profile-email">{profile.email}</div>}
               {profile?.phone && (
