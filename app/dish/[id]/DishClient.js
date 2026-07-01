@@ -54,7 +54,20 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const [reviewPhoto, setReviewPhoto] = useState('')
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [lightbox, setLightbox] = useState(null)
+  const [myHash, setMyHash] = useState('')
+  const [myAvatar, setMyAvatar] = useState('')
   const photoInputRef = useRef(null)
+
+  // Load the current device's profile so we can show your own DP on your reviews
+  useEffect(() => {
+    try {
+      const p = JSON.parse(localStorage.getItem('foodoo_profile') || 'null')
+      if (!p) return
+      const contact = p.phone || p.email
+      if (contact) setMyHash(btoa(contact).slice(0, 32))
+      if (p.avatar_url) setMyAvatar(p.avatar_url)
+    } catch {}
+  }, [])
 
   // Compress + upload a review photo to Supabase Storage, keep the public URL
   const onPhotoChange = async (e) => {
@@ -462,7 +475,10 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                   <div key={r.id} className="rev-card">
                     <div className="rev-top-row">
                       <div className="rev-av">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#BBB" strokeWidth="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#BBB" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                        {myAvatar && r.phone_hash === myHash
+                          ? <img src={myAvatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}/>
+                          : <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#BBB" strokeWidth="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#BBB" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                        }
                       </div>
                       <div className="rev-meta">
                         <div className="rev-name-row">

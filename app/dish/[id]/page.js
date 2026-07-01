@@ -19,7 +19,7 @@ async function getDish(id) {
 async function getReviews(dishId) {
   const { data } = await supabase
     .from('reviews')
-    .select('id, stars, comment, nickname, is_verified, created_at, tags, photo_url')
+    .select('id, stars, comment, nickname, is_verified, created_at, tags, photo_url, phone_hash')
     .eq('dish_id', dishId)
     .eq('is_hidden', false)
     .order('created_at', { ascending: false })

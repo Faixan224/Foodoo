@@ -164,7 +164,7 @@ export default function ProfilePage() {
         .keep-going { font-size: 12px; color: #555; margin-top: 8px; display: flex; align-items: center; gap: 4px; }
         .review-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F5F5F5; }
         .review-item:last-child { border-bottom: none; padding-bottom: 0; }
-        .review-img { width: 56px; height: 56px; border-radius: 10px; background: #1A1A1A; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .review-img { width: 56px; height: 56px; border-radius: 10px; background: #F5F5F5; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .review-img img { width: 100%; height: 100%; object-fit: cover; }
         .review-body { flex: 1; min-width: 0; }
         .review-dish { font-size: 14px; font-weight: 700; color: #1A1A1A; }
