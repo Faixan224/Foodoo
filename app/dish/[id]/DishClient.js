@@ -332,7 +332,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
           .card { padding: 28px 40px 0; border-radius: 0; margin-top: -20px; }
           .bottom-bar { padding: 12px 40px 28px; }
           .dish-name { font-size: 28px; }
-          .sheet { position: fixed; top: 50%; left: 50%; bottom: unset; right: unset; transform: translate(-50%, -55%); width: min(860px, 90vw); height: min(860px, 90vh); max-height: 92vh; border-radius: 20px; transition: opacity 0.25s, transform 0.25s; opacity: 0; pointer-events: none; }
+          .sheet { position: fixed; top: 50%; left: 50%; bottom: unset; right: unset; transform: translate(-50%, -55%); width: min(500px, 92vw); max-height: min(88vh, 780px); border-radius: 20px; transition: opacity 0.25s, transform 0.25s; opacity: 0; pointer-events: none; }
           .sheet.open { transform: translate(-50%, -50%); opacity: 1; pointer-events: all; }
           .sheet-handle { display: none; }
         }
