@@ -720,41 +720,42 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                 <div style={{ fontSize: 12, color: '#AAA', marginTop: 6 }}>If left blank, you'll appear as Foodie #XXXXX</div>
               </div>
               <div style={{ marginBottom: 8 }}>
-                <div className="field-label">Add Phone Number / Email <span className="field-sublabel">(optional)</span></div>
-                {!showPhoneInput ? (
-                  <div className="phone-row" onClick={() => setShowPhoneInput(true)}>
-                    <div className="phone-left">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      <div className="phone-label">Helps us keep reviews genuine</div>
-                    </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#CCC" strokeWidth="2" strokeLinecap="round"/></svg>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <span className="field-label" style={{ marginBottom: 0 }}>Add phone or email</span>
+                  <span style={{ fontSize: 11, color: '#999', background: '#F5F5F5', padding: '2px 8px', borderRadius: 20 }}>optional</span>
+                </div>
+                <div style={{ background: '#FFF3ED', border: '1px solid #FBD9C4', borderRadius: 12, padding: '12px 14px', display: 'flex', gap: 10, marginBottom: 12 }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                    <path d="M12 2.5l2.2 1.7 2.8.2.8 2.7 2.2 1.7-.8 2.7.8 2.7-2.2 1.7-.8 2.7-2.8.2L12 21.5l-2.2-1.7-2.8-.2-.8-2.7L4 15.2l.8-2.7L4 9.8l2.2-1.7.8-2.7 2.8-.2L12 2.5z" fill="#F86D1C" fillOpacity="0.15" stroke="#F86D1C" strokeWidth="1.3"/>
+                    <path d="M9 12l2 2 4-4" stroke="#C24A12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#9A3B10' }}>Get a Verified badge</div>
+                    <div style={{ fontSize: 12, color: '#B45A2A', lineHeight: 1.5 }}>Verified reviews count 3x more and stand out.</div>
                   </div>
-                ) : (
-                  <>
-                    <input className="phone-input" placeholder="03XXXXXXXXX or email" value={phone} onChange={e => { setPhone(e.target.value); setContactFromProfile(false) }} type="tel" autoFocus={!contactFromProfile}/>
-                    {contactFromProfile && (
-                      <div style={{ fontSize: 12, color: '#888', marginTop: 2, marginBottom: 6 }}>Auto-filled from your profile</div>
-                    )}
-                    {phone.length > 0 && (() => {
-                      const pkValid = /^(03\d{9}|\+923\d{9}|00923\d{9})$/.test(phone.replace(/\s+/g, ''))
-                      const emailValid = /^[^\s@]+@[^\s@]+\.(com|net|org|pk|edu|gov|io|co\.pk|com\.pk)$/i.test(phone)
-                      const isValid = pkValid || emailValid
-                      return isValid ? (
-                        <div className="phone-row verified" style={{ marginTop: 8 }}>
-                          <div className="phone-left">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4CAF50" strokeWidth="1.5"/><path d="M8 12l3 3 5-5" stroke="#4CAF50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                            <div className="phone-label" style={{ color: '#4CAF50' }}>Verified</div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ fontSize: 12, color: '#E53935', marginTop: 6 }}>
-                          {phone.startsWith('0') ? 'Enter valid Pakistan number (03XXXXXXXXX)' : 'Enter valid phone or email'}
-                        </div>
-                      )
-                    })()}
-                  </>
+                </div>
+                <input className="phone-input" placeholder="03XXXXXXXXX or email" value={phone} onChange={e => { setPhone(e.target.value); setContactFromProfile(false) }} type="tel"/>
+                {contactFromProfile && (
+                  <div style={{ fontSize: 12, color: '#888', marginTop: 2, marginBottom: 6 }}>Auto-filled from your profile</div>
                 )}
-                <div style={{ fontSize: 12, color: '#AAA', marginTop: 6 }}>Adding your number marks your review as Verified (3x more weight)</div>
+                {phone.length > 0 && (() => {
+                  const pkValid = /^(03\d{9}|\+923\d{9}|00923\d{9})$/.test(phone.replace(/\s+/g, ''))
+                  const emailValid = /^[^\s@]+@[^\s@]+\.(com|net|org|pk|edu|gov|io|co\.pk|com\.pk)$/i.test(phone)
+                  const isValid = pkValid || emailValid
+                  return isValid ? (
+                    <div className="phone-row verified" style={{ marginTop: 8 }}>
+                      <div className="phone-left">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4CAF50" strokeWidth="1.5"/><path d="M8 12l3 3 5-5" stroke="#4CAF50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <div className="phone-label" style={{ color: '#4CAF50' }}>Verified</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: '#E53935', marginTop: 6 }}>
+                      {phone.startsWith('0') ? 'Enter valid Pakistan number (03XXXXXXXXX)' : 'Enter valid phone or email'}
+                    </div>
+                  )
+                })()}
+                <div style={{ fontSize: 12, color: '#AAA', marginTop: 8 }}>You can skip this — your review still counts.</div>
               </div>
             </div>
             <div className="sheet-footer">
