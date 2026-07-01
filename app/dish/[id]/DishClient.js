@@ -601,7 +601,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
         <div className="sheet-handle"></div>
 
         {blockInfo ? (
-          <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <div style={{ textAlign: 'center', padding: '48px 24px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
             <div style={{ fontSize: 52, marginBottom: 16 }}>⏰</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>{blockInfo.title}</div>
             <div style={{ fontSize: 14, color: '#888', marginBottom: 8 }}>{blockInfo.sub}</div>
@@ -611,7 +611,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             </button>
           </div>
         ) : submitted ? (
-          <div style={{ textAlign: 'center', padding: '36px 24px' }}>
+          <div style={{ textAlign: 'center', padding: '36px 24px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
             <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 20px' }}>
               <div style={{ fontSize: 60, lineHeight: 1 }}>🎉</div>
               <div style={{ position: 'absolute', bottom: 0, right: 0, width: 28, height: 28, background: '#4CAF50', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
