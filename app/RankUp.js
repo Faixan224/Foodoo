@@ -48,7 +48,7 @@ export default function RankUp() {
       <style>{`
         .rankup-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; animation: ru-fade .2s ease; }
         .rankup-card { background: #fff; border-radius: 24px; padding: 30px 24px 24px; width: 100%; max-width: 330px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; animation: ru-pop .45s cubic-bezier(0.22,1,0.36,1); }
-        .rankup-emoji { font-size: 42px; line-height: 1; }
+        .rankup-congrats { font-size: 14px; font-weight: 800; color: #F86D1C; letter-spacing: 1px; text-transform: uppercase; }
         .rankup-badge { display: flex; justify-content: center; margin: 10px 0 14px; animation: ru-bounce .6s ease .1s both; }
         .rankup-title { font-size: 22px; font-weight: 900; color: #1A1A1A; letter-spacing: -0.5px; }
         .rankup-sub { font-size: 13px; color: #888; margin-top: 10px; }
@@ -60,7 +60,7 @@ export default function RankUp() {
         @keyframes ru-bounce { 0% { transform: scale(0) rotate(-15deg); } 60% { transform: scale(1.15) rotate(6deg); } 100% { transform: scale(1) rotate(0); } }
       `}</style>
       <div className="rankup-card" onClick={e => e.stopPropagation()}>
-        <div className="rankup-emoji">🎉</div>
+        <div className="rankup-congrats">Congratulations!</div>
         <div className="rankup-badge">
           <img src={`/icons/ranks/${rank.slug}.png`} alt={rank.name} width={92} height={92} style={{ objectFit: 'contain' }} />
         </div>
