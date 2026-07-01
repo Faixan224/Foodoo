@@ -2,14 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
-
-const RANKS = [
-  { name: 'Foodie', min: 0, max: 2, color: '#4CAF50', desc: 'Start your journey as a foodie!', emoji: '🥄' },
-  { name: 'Food Explorer', min: 3, max: 9, color: '#2196F3', desc: 'Explore more dishes and grow!', emoji: '🌟' },
-  { name: 'Food Critic', min: 10, max: 24, color: '#9C27B0', desc: 'Great opinions come from experience!', emoji: '⭐' },
-  { name: 'Food Authority', min: 25, max: 49, color: '#F86D1C', desc: "You're trusted by the community!", emoji: '👑' },
-  { name: 'Foodoo Legend', min: 50, max: Infinity, color: '#FFB800', desc: 'Top reviewer on Foodoo!', emoji: '🏆' },
-]
+import { RANKS, rankRange } from '../../lib/ranks'
 
 function getRank(count) {
   return RANKS.find(r => count >= r.min && count <= r.max) || RANKS[0]
@@ -91,6 +84,12 @@ export default function ProfilePage() {
     }
     setLoading(false)
   }, [])
+
+  // Lock background scroll while the ranks modal is open
+  useEffect(() => {
+    document.body.style.overflow = showRanks ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [showRanks])
 
   const fetchMyReviews = async (contact) => {
     if (!contact) return
@@ -204,7 +203,8 @@ export default function ProfilePage() {
           .stats-card { margin: 20px 40px; }
           .section { margin: 0 40px 16px; }
           .tip-banner { margin: 0 40px 16px; }
-          .ranks-sheet { max-width: 560px; margin: 0 auto; border-radius: 24px 24px 0 0; }
+          .ranks-modal { align-items: center; }
+          .ranks-sheet { max-width: 460px; margin: 0 auto; border-radius: 24px; padding: 28px 24px 24px; max-height: 82vh; }
         }
       `}</style>
 
@@ -328,7 +328,7 @@ export default function ProfilePage() {
                 <RankBadge rank={rank} size={60}/>
                 <div className="rank-info">
                   <div className="rank-name" style={{ color: rank.color }}>{rank.name}</div>
-                  <div className="rank-range">{rank.min} – {rank.max === Infinity ? '50+' : rank.max} reviews</div>
+                  <div className="rank-range">{rankRange(rank)} reviews</div>
                   {nextRank ? (
                     <>
                       <div className="next-rank-label">{reviewsToNext} more reviews to reach</div>
@@ -408,7 +408,7 @@ export default function ProfilePage() {
                 <RankBadge rank={r} size={48}/>
                 <div className="rank-row-info">
                   <div className="rank-row-name" style={{ color: r.color }}>{r.name}</div>
-                  <div className="rank-row-range">{r.min} – {r.max === Infinity ? '50+' : r.max} reviews</div>
+                  <div className="rank-row-range">{rankRange(r)} reviews</div>
                   <div className="rank-row-desc">{r.desc}</div>
                 </div>
               </div>
