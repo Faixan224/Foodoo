@@ -53,6 +53,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const [isSaved, setIsSaved] = useState(false)
   const [reviewPhoto, setReviewPhoto] = useState('')
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [lightbox, setLightbox] = useState(null)
   const photoInputRef = useRef(null)
 
   // Compress + upload a review photo to Supabase Storage, keep the public URL
@@ -290,6 +291,8 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
         .rate-btn { width: 100%; background: #F86D1C; color: #fff; border: none; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .overlay.open { opacity: 1; pointer-events: all; }
+        .lb-body { display: flex; flex-direction: column; overflow: auto; }
+        @media (min-width: 700px) { .lb-body { flex-direction: row; } }
         .sheet { position: fixed; bottom: -100%; left: 0; right: 0; background: #fff; border-radius: 24px 24px 0 0; z-index: 201; transition: bottom 0.35s cubic-bezier(0.32,0.72,0,1); max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; }
         .sheet.open { bottom: 0; }
         .sheet-handle { width: 40px; height: 4px; background: #E0E0E0; border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
@@ -476,7 +479,10 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                       </div>
                     </div>
                     {r.comment && <div className="rev-text">{r.comment}</div>}
-                    {r.photo_url && <img src={r.photo_url} alt="review" loading="lazy" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 12, marginTop: 8 }}/>}
+                    {r.photo_url && (
+                      <img src={r.photo_url} alt="review" loading="lazy" onClick={() => setLightbox(r)}
+                        style={{ width: 84, height: 84, objectFit: 'cover', borderRadius: 10, marginTop: 10, cursor: 'pointer', border: '1px solid #EEE', display: 'block' }}/>
+                    )}
                     <div className="rev-bottom">
                       <button className={'like-btn' + (likedReviews[r.id] ? ' liked' : '')} onClick={() => toggleLike(r.id)}>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -543,6 +549,33 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
         <div style={{ textAlign: 'center', fontSize: 12, color: '#999', marginBottom: 6 }}>Have you tried this dish?</div>
         <button className="rate-btn" onClick={openReviewSheet}>⭐ Rate this Dish</button>
       </div>
+
+      {lightbox && (
+        <div onClick={() => setLightbox(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 18, maxWidth: 780, width: '100%', maxHeight: '92vh', overflow: 'hidden', position: 'relative' }}>
+            <button onClick={() => setLightbox(null)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 2, width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.92)', border: 'none', cursor: 'pointer', fontSize: 17, boxShadow: '0 1px 6px rgba(0,0,0,0.25)' }}>✕</button>
+            <div className="lb-body" style={{ maxHeight: '92vh' }}>
+              <div style={{ flex: '1 1 55%', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img src={lightbox.photo_url} alt="review" style={{ width: '100%', maxHeight: '70vh', objectFit: 'contain', display: 'block' }}/>
+              </div>
+              <div style={{ flex: '1 1 45%', padding: '22px 20px', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontWeight: 800, fontSize: 15, color: '#1A1A1A' }}>{lightbox.nickname || ('Foodie #' + parseInt(lightbox.id.replace(/-/g, '').slice(-8), 16).toString().slice(-5))}</span>
+                  {lightbox.is_verified && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: '#E9F7EF', color: '#2E7D32', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2E7D32" strokeWidth="2.5" strokeLinecap="round"/></svg>
+                      Verified
+                    </span>
+                  )}
+                </div>
+                <div style={{ color: '#F86D1C', fontSize: 15, letterSpacing: 1 }}>{stars5.map(s => <span key={s} style={{ color: s <= lightbox.stars ? '#F86D1C' : '#DDD' }}>★</span>)}</div>
+                <div style={{ fontSize: 12, color: '#999', margin: '5px 0 14px' }}>{new Date(lightbox.created_at).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                {lightbox.comment && <div style={{ fontSize: 14, color: '#333', lineHeight: 1.55 }}>{lightbox.comment}</div>}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={'overlay' + (showReview ? ' open' : '')} onClick={resetSheet}></div>
 
