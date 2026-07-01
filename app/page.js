@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase'
 import { getEditorsPicks } from '../lib/ranking'
 import SaveButton from './SaveButton'
+import HeaderAvatar from './HeaderAvatar'
 
 // Render on every request so newly submitted reviews are reflected immediately.
 export const dynamic = 'force-dynamic'
@@ -160,9 +161,7 @@ export default async function Home() {
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               <div className="bell-dot"></div>
             </a>
-            <a href="/profile" className="icon-circle">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#888" strokeWidth="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#888" strokeWidth="2" strokeLinecap="round"/></svg>
-            </a>
+            <HeaderAvatar />
           </div>
         </div>
 
