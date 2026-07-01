@@ -569,7 +569,9 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
       {lightbox && (
         <div onClick={() => setLightbox(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 18, maxWidth: 780, width: '100%', maxHeight: '92vh', overflow: 'hidden', position: 'relative' }}>
-            <button onClick={() => setLightbox(null)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 2, width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.92)', border: 'none', cursor: 'pointer', fontSize: 17, boxShadow: '0 1px 6px rgba(0,0,0,0.25)' }}>✕</button>
+            <button onClick={() => setLightbox(null)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 2, width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.92)', border: 'none', cursor: 'pointer', boxShadow: '0 1px 6px rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#333" strokeWidth="2.2" strokeLinecap="round"/></svg>
+            </button>
             <div className="lb-body" style={{ maxHeight: '92vh' }}>
               <div style={{ flex: '1 1 55%', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={lightbox.photo_url} alt="review" style={{ width: '100%', maxHeight: '70vh', objectFit: 'contain', display: 'block' }}/>
@@ -693,7 +695,9 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                 {reviewPhoto ? (
                   <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden' }}>
                     <img src={reviewPhoto} alt="review" style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}/>
-                    <button type="button" onClick={() => setReviewPhoto('')} style={{ position: 'absolute', top: 8, right: 8, width: 30, height: 30, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15 }}>✕</button>
+                    <button type="button" onClick={() => setReviewPhoto('')} style={{ position: 'absolute', top: 8, right: 8, width: 30, height: 30, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#fff" strokeWidth="2.4" strokeLinecap="round"/></svg>
+                    </button>
                   </div>
                 ) : (
                   <div className="photo-box" onClick={() => !uploadingPhoto && photoInputRef.current && photoInputRef.current.click()}>
