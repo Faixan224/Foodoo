@@ -157,12 +157,13 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
 
   const submitReview = async () => {
     if (stars === 0) { setError('Please give an overall rating'); return }
-    // Overall limit: max 3 reviews per 24h (device-level; DB enforces per phone)
+    // Rate limits (device-level; DB also enforces the same per phone)
     const now = Date.now()
     let times = []
     try { times = JSON.parse(localStorage.getItem('foodoo_review_times') || '[]') } catch {}
-    times = times.filter(t => now - t < 86400000)
-    if (times.length >= 3) { setError('You can post up to 3 reviews per day. Please try again later.'); return }
+    times = times.filter(t => now - t < 2592000000) // keep last 30 days
+    if (times.filter(t => now - t < 86400000).length >= 3) { setError('You can post up to 3 reviews per day. Please try again later.'); return }
+    if (times.length >= 10) { setError('You can post up to 10 reviews per month.'); return }
     setSubmitting(true)
     setError('')
     const phoneHash = phone ? btoa(phone).slice(0, 32) : 'anon-' + Math.random().toString(36).slice(2, 10)

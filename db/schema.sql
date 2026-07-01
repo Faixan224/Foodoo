@@ -314,6 +314,14 @@ BEGIN
     RAISE EXCEPTION 'You can post up to 3 reviews per day';
   END IF;
 
+  -- Max 10 reviews per phone / 30 days
+  SELECT COUNT(*) INTO v_count FROM reviews
+  WHERE phone_hash = NEW.phone_hash
+    AND created_at > NOW() - INTERVAL '30 days';
+  IF v_count >= 10 THEN
+    RAISE EXCEPTION 'You can post up to 10 reviews per month';
+  END IF;
+
   -- Flag high volume
   SELECT COUNT(*) INTO v_count FROM reviews
   WHERE phone_hash = NEW.phone_hash
