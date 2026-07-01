@@ -132,7 +132,11 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
       source: 'web', is_verified: isVerified, weight: isVerified ? 3.0 : 1.0
     })
     if (err) { setError(err.message); setSubmitting(false) }
-    else { localStorage.setItem('review_' + dish.id, Date.now().toString()); setSubmitted(true) }
+    else {
+      localStorage.setItem('review_' + dish.id, Date.now().toString())
+      setSubmitted(true)
+      window.dispatchEvent(new Event('foodoo:rank-check'))
+    }
   }
 
   const resetSheet = () => {

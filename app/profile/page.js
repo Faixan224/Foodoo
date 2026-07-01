@@ -51,8 +51,6 @@ export default function ProfilePage() {
   const [myReviews, setMyReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [showRanks, setShowRanks] = useState(false)
-  const [celebrateRank, setCelebrateRank] = useState(null)
-  const [reviewsLoaded, setReviewsLoaded] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem('foodoo_profile')
@@ -67,22 +65,6 @@ export default function ProfilePage() {
     setLoading(false)
   }, [])
 
-  // Pop a congrats modal when the reviewer rank goes up
-  useEffect(() => {
-    if (!reviewsLoaded) return
-    const count = myReviews.length
-    const idx = RANKS.findIndex(r => count >= r.min && count <= r.max)
-    const seen = localStorage.getItem('foodoo_rank_seen')
-    if (seen === null) {
-      localStorage.setItem('foodoo_rank_seen', String(idx))
-      if (idx > 0) setCelebrateRank(RANKS[idx])
-      return
-    }
-    const seenIdx = parseInt(seen, 10)
-    if (idx > seenIdx) setCelebrateRank(RANKS[idx])
-    localStorage.setItem('foodoo_rank_seen', String(Math.max(idx, seenIdx)))
-  }, [reviewsLoaded, myReviews])
-
   const fetchMyReviews = async (contact) => {
     if (!contact) return
     const hash = btoa(contact).slice(0, 32)
@@ -93,7 +75,6 @@ export default function ProfilePage() {
       .order('created_at', { ascending: false })
       .limit(20)
     setMyReviews(data || [])
-    setReviewsLoaded(true)
   }
 
   const saveProfile = () => {
@@ -178,18 +159,6 @@ export default function ProfilePage() {
         .rank-row-range { font-size: 12px; color: #999; margin-top: 1px; }
         .rank-row-desc { font-size: 12px; color: #666; margin-top: 2px; }
         .star-note { text-align: center; font-size: 12px; color: #999; margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-        .celebrate-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 24px; animation: cel-fade .2s ease; }
-        .celebrate-card { background: #fff; border-radius: 24px; padding: 30px 24px 24px; width: 100%; max-width: 330px; text-align: center; animation: cel-pop .45s cubic-bezier(0.22,1,0.36,1); }
-        .celebrate-emoji { font-size: 42px; line-height: 1; }
-        .celebrate-badge { display: flex; justify-content: center; margin: 10px 0 14px; animation: cel-bounce .6s ease 0.1s both; }
-        .celebrate-title { font-size: 22px; font-weight: 900; color: #1A1A1A; letter-spacing: -0.5px; }
-        .celebrate-sub { font-size: 13px; color: #888; margin-top: 10px; }
-        .celebrate-rank { font-size: 24px; font-weight: 900; margin-top: 2px; }
-        .celebrate-desc { font-size: 13px; color: #666; margin-top: 8px; line-height: 1.45; }
-        .celebrate-btn { margin-top: 22px; width: 100%; background: #F86D1C; color: #fff; border: none; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit; }
-        @keyframes cel-fade { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes cel-pop { from { opacity: 0; transform: scale(0.85) translateY(12px); } to { opacity: 1; transform: none; } }
-        @keyframes cel-bounce { 0% { transform: scale(0) rotate(-15deg); } 60% { transform: scale(1.15) rotate(6deg); } 100% { transform: scale(1) rotate(0); } }
         .form-field { margin-bottom: 14px; }
         .form-label { font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 6px; display: block; }
         .form-input { width: 100%; border: 1.5px solid #EBEBEB; border-radius: 12px; padding: 13px 16px; font-size: 14px; color: #1A1A1A; outline: none; font-family: inherit; background: #FAFAFA; }
@@ -424,20 +393,6 @@ export default function ProfilePage() {
               </div>
             ))}
             <div className="star-note">⭐ Ranks update automatically as you add more reviews.</div>
-          </div>
-        </div>
-      )}
-
-      {celebrateRank && (
-        <div className="celebrate-modal" onClick={() => setCelebrateRank(null)}>
-          <div className="celebrate-card" onClick={e => e.stopPropagation()}>
-            <div className="celebrate-emoji">🎉</div>
-            <div className="celebrate-badge"><RankBadge rank={celebrateRank} size={92}/></div>
-            <div className="celebrate-title">Rank Up!</div>
-            <div className="celebrate-sub">You&apos;re now a</div>
-            <div className="celebrate-rank" style={{ color: celebrateRank.color }}>{celebrateRank.name}</div>
-            <div className="celebrate-desc">{celebrateRank.desc}</div>
-            <button className="celebrate-btn" onClick={() => setCelebrateRank(null)}>Awesome! 🎊</button>
           </div>
         </div>
       )}
