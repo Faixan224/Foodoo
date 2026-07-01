@@ -348,7 +348,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
           .card { padding: 28px 40px 0; border-radius: 0; margin-top: -20px; }
           .bottom-bar { padding: 12px 40px 28px; }
           .dish-name { font-size: 28px; }
-          .sheet { position: fixed; top: 50%; left: 50%; bottom: unset; right: unset; transform: translate(-50%, -55%); width: min(500px, 92vw); max-height: min(88vh, 780px); border-radius: 20px; transition: opacity 0.25s, transform 0.25s; opacity: 0; pointer-events: none; }
+          .sheet { position: fixed; top: 50%; left: 50%; bottom: unset; right: unset; transform: translate(-50%, -55%); width: min(500px, 92vw); max-height: 94vh; border-radius: 20px; transition: opacity 0.25s, transform 0.25s; opacity: 0; pointer-events: none; }
           .sheet.open { transform: translate(-50%, -50%); opacity: 1; pointer-events: all; }
           .sheet-handle { display: none; }
         }
@@ -611,16 +611,16 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             </button>
           </div>
         ) : submitted ? (
-          <div style={{ textAlign: 'center', padding: '36px 24px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
-            <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 20px' }}>
-              <div style={{ fontSize: 60, lineHeight: 1 }}>🎉</div>
+          <div style={{ textAlign: 'center', padding: '26px 24px 22px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+            <div style={{ position: 'relative', width: 64, height: 64, margin: '0 auto 12px' }}>
+              <div style={{ fontSize: 50, lineHeight: 1 }}>🎉</div>
               <div style={{ position: 'absolute', bottom: 0, right: 0, width: 28, height: 28, background: '#4CAF50', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
             </div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#1A1A1A', marginBottom: 8 }}>Thanks for your review!</div>
-            <div style={{ fontSize: 14, color: '#888', marginBottom: 24 }}>Your feedback helps others make better food choices.</div>
-            <div style={{ background: '#F9F9F9', borderRadius: 16, padding: '16px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 14, textAlign: 'left' }}>
+            <div style={{ fontSize: 14, color: '#888', marginBottom: 16 }}>Your feedback helps others make better food choices.</div>
+            <div style={{ background: '#F9F9F9', borderRadius: 16, padding: '14px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 14, textAlign: 'left' }}>
               <div style={{ width: 56, height: 56, borderRadius: 12, background: '#F5F5F5', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {dish.photo_url ? <img src={dish.photo_url} alt={dish.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }}/> : <span style={{ fontSize: 24 }}>🍽️</span>}
               </div>
@@ -637,7 +637,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                 </div>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 14, overflow: 'hidden', marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 14, overflow: 'hidden', marginBottom: 18 }}>
               {[{ icon: '💬', label: 'Review Added' }, { icon: '👥', label: 'Community Stronger' }, { icon: '❤️', label: 'Foodies Thank You!' }].map((item, i) => (
                 <div key={i} style={{ background: '#fff', padding: '14px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: 22, marginBottom: 4 }}>{item.icon}</div>
