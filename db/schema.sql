@@ -462,3 +462,18 @@ CREATE POLICY "Owners manage branches" ON branches FOR ALL USING (auth.uid()::TE
 CREATE POLICY "Owners manage dishes" ON dishes FOR ALL USING (auth.uid()::TEXT = (SELECT owner_id::TEXT FROM restaurants WHERE id = dishes.restaurant_id));
 CREATE POLICY "Owners insert replies" ON review_replies FOR INSERT WITH CHECK (auth.uid()::TEXT = (SELECT owner_id::TEXT FROM restaurants WHERE id = review_replies.restaurant_id));
 CREATE POLICY "Owners read subscription" ON subscriptions FOR SELECT USING (auth.uid()::TEXT = (SELECT owner_id::TEXT FROM restaurants WHERE id = subscriptions.restaurant_id));
+
+-- =====================================================================
+-- reviewer_profiles — public map of phone_hash -> display picture / nickname
+-- so a reviewer's DP can show on all their reviews. Added after MVP.
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS reviewer_profiles (
+  phone_hash TEXT PRIMARY KEY,
+  nickname TEXT,
+  avatar_url TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE reviewer_profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read reviewer profiles" ON reviewer_profiles FOR SELECT USING (TRUE);
+CREATE POLICY "Anyone insert reviewer profile" ON reviewer_profiles FOR INSERT WITH CHECK (TRUE);
+CREATE POLICY "Anyone update reviewer profile" ON reviewer_profiles FOR UPDATE USING (TRUE);

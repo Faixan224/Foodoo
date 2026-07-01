@@ -46,14 +46,16 @@ export default function ProfilePage() {
   const [showRanks, setShowRanks] = useState(false)
   const avatarInputRef = useRef(null)
 
-  // Upload & set profile picture (compressed, stored on-device in localStorage)
+  // Upload & set profile picture. Uploads to Supabase Storage and records it in
+  // reviewer_profiles (keyed by phone_hash) so the DP shows on this user's
+  // reviews for everyone; falls back to on-device base64 if upload fails.
   const onAvatarChange = (e) => {
     const file = e.target.files && e.target.files[0]
     if (!file) return
     const reader = new FileReader()
     reader.onload = () => {
       const img = new Image()
-      img.onload = () => {
+      img.onload = async () => {
         const size = 256
         const canvas = document.createElement('canvas')
         canvas.width = size; canvas.height = size
@@ -62,10 +64,32 @@ export default function ProfilePage() {
         const sx = (img.width - min) / 2, sy = (img.height - min) / 2
         ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size)
         const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
-        const updated = { ...(profile || form), avatar_url: dataUrl, joined: profile?.joined || new Date().toISOString() }
+
+        const base = profile || form
+        const contact = base.phone || base.email
+        const hash = contact ? btoa(contact).slice(0, 32) : null
+        let publicUrl = null
+        try {
+          const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85))
+          if (blob && hash) {
+            const path = 'avatars/' + hash + '-' + Date.now() + '.jpg'
+            const { error } = await supabase.storage.from('review-photos').upload(path, blob, { contentType: 'image/jpeg' })
+            if (!error) publicUrl = supabase.storage.from('review-photos').getPublicUrl(path).data.publicUrl
+          }
+        } catch {}
+
+        const avatar = publicUrl || dataUrl
+        const updated = { ...base, avatar_url: avatar, joined: profile?.joined || new Date().toISOString() }
         localStorage.setItem('foodoo_profile', JSON.stringify(updated))
         setProfile(updated)
-        setForm(f => ({ ...f, avatar_url: dataUrl }))
+        setForm(f => ({ ...f, avatar_url: avatar }))
+
+        if (publicUrl && hash) {
+          await supabase.from('reviewer_profiles').upsert(
+            { phone_hash: hash, nickname: base.name || null, avatar_url: publicUrl },
+            { onConflict: 'phone_hash' }
+          )
+        }
       }
       img.src = reader.result
     }

@@ -475,8 +475,8 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                   <div key={r.id} className="rev-card">
                     <div className="rev-top-row">
                       <div className="rev-av">
-                        {myAvatar && r.phone_hash === myHash
-                          ? <img src={myAvatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}/>
+                        {(r.reviewer_avatar || (myAvatar && r.phone_hash === myHash))
+                          ? <img src={r.reviewer_avatar || myAvatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}/>
                           : <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#BBB" strokeWidth="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#BBB" strokeWidth="1.5" strokeLinecap="round"/></svg>
                         }
                       </div>

@@ -24,7 +24,21 @@ async function getReviews(dishId) {
     .eq('is_hidden', false)
     .order('created_at', { ascending: false })
     .limit(20)
-  return data || []
+  const reviews = data || []
+
+  // Attach each reviewer's profile picture (from reviewer_profiles, public read)
+  const hashes = [...new Set(reviews.map(r => r.phone_hash).filter(Boolean))]
+  if (hashes.length) {
+    const { data: profs, error } = await supabase
+      .from('reviewer_profiles')
+      .select('phone_hash, avatar_url')
+      .in('phone_hash', hashes)
+    if (!error && profs) {
+      const map = Object.fromEntries(profs.map(p => [p.phone_hash, p.avatar_url]))
+      reviews.forEach(r => { r.reviewer_avatar = map[r.phone_hash] || null })
+    }
+  }
+  return reviews
 }
 
 async function getSimilarDishes(restaurantId, currentDishId) {
