@@ -297,20 +297,30 @@ $func$
 DECLARE
   v_count INTEGER;
 BEGIN
-  SELECT COUNT(*) INTO v_count FROM reviews
-  WHERE phone_hash = NEW.phone_hash
-    AND created_at > NOW() - INTERVAL '1 hour';
-  IF v_count >= 10 THEN
-    NEW.is_flagged := TRUE;
-    NEW.flag_reason := 'High volume: 10+ reviews in 1 hour from same phone';
-  END IF;
-
+  -- 1 review per dish per phone / 24h
   SELECT COUNT(*) INTO v_count FROM reviews
   WHERE phone_hash = NEW.phone_hash
     AND dish_id = NEW.dish_id
     AND created_at > NOW() - INTERVAL '24 hours';
   IF v_count >= 1 THEN
     RAISE EXCEPTION 'You have already reviewed this dish in the last 24 hours';
+  END IF;
+
+  -- Max 3 reviews per phone / 24h (overall)
+  SELECT COUNT(*) INTO v_count FROM reviews
+  WHERE phone_hash = NEW.phone_hash
+    AND created_at > NOW() - INTERVAL '24 hours';
+  IF v_count >= 3 THEN
+    RAISE EXCEPTION 'You can post up to 3 reviews per day';
+  END IF;
+
+  -- Flag high volume
+  SELECT COUNT(*) INTO v_count FROM reviews
+  WHERE phone_hash = NEW.phone_hash
+    AND created_at > NOW() - INTERVAL '1 hour';
+  IF v_count >= 10 THEN
+    NEW.is_flagged := TRUE;
+    NEW.flag_reason := 'High volume: 10+ reviews in 1 hour from same phone';
   END IF;
 
   IF NEW.is_verified THEN
