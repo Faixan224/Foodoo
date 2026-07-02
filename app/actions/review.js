@@ -54,7 +54,7 @@ export async function submitReview(input) {
     comment,
     tags,
     photo_url: input.photoUrl || null,
-    source: verifiedBranch ? 'qr_scan' : 'web',
+    source: isVerified ? 'qr_scan' : 'web',
     is_verified: isVerified,
     weight: isVerified ? 3.0 : 1.0,
   })

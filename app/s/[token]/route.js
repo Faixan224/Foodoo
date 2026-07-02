@@ -29,9 +29,10 @@ export async function GET(request, { params }) {
   const opts = { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 3 * 60 * 60, path: '/' }
   res.cookies.set(QR_COOKIE, signVerification(qr.branch_id), opts)
   // Readable hint (name + branch) so the app can show "Verified visit" — not trusted for the actual decision.
+  // NextResponse.cookies.set already URL-encodes the value — pass raw JSON.
   res.cookies.set(
     QR_UI_COOKIE,
-    encodeURIComponent(JSON.stringify({ b: qr.branch_id, n: qr.branches?.restaurants?.name || '', br: qr.branches?.name || '' })),
+    JSON.stringify({ b: qr.branch_id, n: qr.branches?.restaurants?.name || '', br: qr.branches?.name || '' }),
     { ...opts, httpOnly: false }
   )
   return res
