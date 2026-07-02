@@ -169,7 +169,12 @@ export async function addBranch(prevState, formData) {
     .maybeSingle()
   if (!restaurant) return { error: 'No restaurant linked to this account.' }
 
-  const { count } = await supabase
+  // Branch writes are locked at the DB level (authenticated can't INSERT
+  // branches) so the paid add_branch code can't be bypassed — the whole
+  // insert runs through the service role AFTER we validate here.
+  const admin = getAdminSupabase()
+
+  const { count } = await admin
     .from('branches')
     .select('id', { count: 'exact', head: true })
     .eq('restaurant_id', restaurant.id)
@@ -178,7 +183,6 @@ export async function addBranch(prevState, formData) {
   if ((count ?? 0) > 0) {
     // Additional branch — must present a valid add_branch code for this restaurant.
     if (!code) return { error: 'A branch code is required to add another branch. Contact the Foodoo team.' }
-    const admin = getAdminSupabase()
     const { data } = await admin
       .from('onboarding_codes')
       .select('*')
@@ -192,7 +196,7 @@ export async function addBranch(prevState, formData) {
     codeRow = data
   }
 
-  const { data: branch, error: insErr } = await supabase
+  const { data: branch, error: insErr } = await admin
     .from('branches')
     .insert({
       restaurant_id: restaurant.id,
@@ -206,15 +210,13 @@ export async function addBranch(prevState, formData) {
   if (insErr) return { error: 'Could not add the branch: ' + insErr.message }
 
   if (codeRow) {
-    const admin = getAdminSupabase()
-    const { data: { user } } = await supabase.auth.getUser()
     await admin
       .from('onboarding_codes')
       .update({
         status: 'used',
         restaurant_id: restaurant.id,
         consumed_branch_id: branch.id,
-        consumed_by: user?.id || null,
+        consumed_by: user.id,
         used_at: new Date().toISOString(),
       })
       .eq('id', codeRow.id)
