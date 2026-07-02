@@ -1,9 +1,29 @@
 'use server'
 
+import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { getAdminSupabase } from '../../lib/supabase-admin'
 import { requireAdmin } from '../../lib/dal'
 import { monthlyBillPKR } from '../../lib/billing'
+
+// Generate the permanent QR for a branch (one per branch). Admin-only.
+export async function generateBranchQR(formData) {
+  await requireAdmin()
+  const branchId = String(formData.get('branch_id') || '')
+  const restaurantId = String(formData.get('restaurant_id') || '')
+  if (!branchId) return
+  const admin = getAdminSupabase()
+  const { data: existing } = await admin
+    .from('branch_qr')
+    .select('id')
+    .eq('branch_id', branchId)
+    .maybeSingle()
+  if (!existing) {
+    const token = crypto.randomUUID().replace(/-/g, '')
+    await admin.from('branch_qr').insert({ branch_id: branchId, token })
+  }
+  if (restaurantId) revalidatePath('/admin/restaurants/' + restaurantId)
+}
 
 function seg() {
   return String(Math.floor(Math.random() * 900) + 100) // 100–999

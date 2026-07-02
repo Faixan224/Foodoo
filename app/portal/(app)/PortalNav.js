@@ -7,6 +7,7 @@ const NAV = [
   { href: '/portal/restaurant', label: 'Restaurant', enabled: true },
   { href: '/portal/dishes', label: 'Dishes', enabled: true },
   { href: '/portal/branches', label: 'Branches', enabled: true },
+  { href: '/portal/qr', label: 'QR codes', enabled: true },
   { href: '/portal/reviews', label: 'Reviews', enabled: true },
   { href: '/portal/billing', label: 'Billing', enabled: true },
 ]

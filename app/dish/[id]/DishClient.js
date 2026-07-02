@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { submitReview as submitReviewAction } from '../../actions/review'
 
 const StarRating = ({ value, onChange, size = 32, showLabel = false }) => {
   const [hovered, setHovered] = useState(0)
@@ -56,7 +57,18 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const [lightbox, setLightbox] = useState(null)
   const [myHash, setMyHash] = useState('')
   const [myAvatar, setMyAvatar] = useState('')
+  const [wasVerified, setWasVerified] = useState(false)
+  const [qrVisit, setQrVisit] = useState(null) // { n: restaurant, br: branch } from the scan hint cookie
   const photoInputRef = useRef(null)
+
+  // Read the (untrusted, display-only) QR hint cookie so we can show a
+  // "Verified visit" note. The real verification happens server-side on submit.
+  useEffect(() => {
+    try {
+      const m = document.cookie.match(/(?:^|; )foodoo_qrv_ui=([^;]+)/)
+      if (m) setQrVisit(JSON.parse(decodeURIComponent(m[1])))
+    } catch {}
+  }, [])
 
   // Load the current device's profile so we can show your own DP on your reviews
   useEffect(() => {
@@ -198,19 +210,18 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
     if (block) { setBlockInfo(block); return }
     setSubmitting(true)
     setError('')
-    const phoneHash = phone ? btoa(phone).slice(0, 32) : 'anon-' + Math.random().toString(36).slice(2, 10)
-    const pkValid = /^(03\d{9}|\+923\d{9}|00923\d{9})$/.test(phone.replace(/\s+/g, ''))
-    const emailValid = /^[^\s@]+@[^\s@]+\.(com|net|org|pk|edu|gov|io|co\.pk|com\.pk)$/i.test(phone)
-    const isVerified = pkValid || emailValid
-    const { error: err } = await supabase.from('reviews').insert({
-      dish_id: dish.id, phone_hash: phoneHash,
-      nickname: nickname.trim() || null,
+    // Review is created server-side; the server decides "verified" from a real
+    // QR scan (never from what we send here).
+    const res = await submitReviewAction({
+      dishId: dish.id,
       stars,
-      comment: comment || null, tags: tags.length > 0 ? tags : null,
-      photo_url: reviewPhoto || null,
-      source: 'web', is_verified: isVerified, weight: isVerified ? 3.0 : 1.0
+      comment: comment || null,
+      tags: tags.length > 0 ? tags : null,
+      nickname: nickname.trim() || null,
+      phone: phone || null,
+      photoUrl: reviewPhoto || null,
     })
-    if (err) { setError(err.message); setSubmitting(false) }
+    if (res?.error) { setError(res.error); setSubmitting(false) }
     else {
       const now = Date.now()
       localStorage.setItem('review_' + dish.id, now.toString())
@@ -219,6 +230,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
       times = times.filter(t => now - t < 2592000000)
       times.push(now)
       localStorage.setItem('foodoo_review_times', JSON.stringify(times))
+      setWasVerified(!!res?.verified)
       setSubmitted(true)
       window.dispatchEvent(new Event('foodoo:rank-check'))
     }
@@ -227,7 +239,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
   const resetSheet = () => {
     setShowReview(false); setSubmitted(false); setBlockInfo(null)
     setStars(0); setTasteStars(0); setPortionStars(0); setValueStars(0)
-    setTags([]); setComment(''); setNickname(''); setPhone(''); setShowPhoneInput(false); setContactFromProfile(false); setReviewPhoto('')
+    setTags([]); setComment(''); setNickname(''); setPhone(''); setShowPhoneInput(false); setContactFromProfile(false); setReviewPhoto(''); setWasVerified(false)
   }
 
   const rating = dish.avg_rating || 0
@@ -655,7 +667,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                       <svg key={s} width="14" height="14" viewBox="0 0 24 24" fill={s <= stars ? '#F86D1C' : '#DDD'}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                     ))}
                   </div>
-                  <span style={{ fontSize: 12, background: '#E8F5E9', color: '#2E7D32', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>Review Submitted</span>
+                  <span style={{ fontSize: 12, background: '#E8F5E9', color: '#2E7D32', padding: '2px 8px', borderRadius: 20, fontWeight: 600 }}>{wasVerified ? '✓ Verified (3x)' : 'Review Submitted'}</span>
                 </div>
               </div>
             </div>
@@ -741,20 +753,27 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                 <input className="text-input" placeholder="e.g. Ahmad from Gulberg" value={nickname} onChange={e => setNickname(e.target.value)} maxLength={30}/>
                 <div style={{ fontSize: 12, color: '#AAA', marginTop: 6 }}>If left blank, you'll appear as Foodie #XXXXX</div>
               </div>
+              {qrVisit ? (
+                <div style={{ background: '#E9F7EF', border: '1px solid #B7E4C7', borderRadius: 12, padding: '12px 14px', display: 'flex', gap: 10, marginBottom: 16 }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="9" stroke="#2E7D32" strokeWidth="1.5"/><path d="M8 12l3 3 5-5" stroke="#2E7D32" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1B5E20' }}>Verified visit ✓</div>
+                    <div style={{ fontSize: 12, color: '#2E7D32', lineHeight: 1.5 }}>You scanned at {qrVisit.n || 'the restaurant'}. This review will count as Verified (3x).</div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ background: '#FFF3ED', border: '1px solid #FBD9C4', borderRadius: 12, padding: '12px 14px', display: 'flex', gap: 10, marginBottom: 16 }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="#C24A12" strokeWidth="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="#C24A12" strokeWidth="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="#C24A12" strokeWidth="1.6"/><path d="M14 14h2v2M20 14v6M16 20h4" stroke="#C24A12" strokeWidth="1.6" strokeLinecap="round"/></svg>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#9A3B10' }}>Want a Verified badge?</div>
+                    <div style={{ fontSize: 12, color: '#B45A2A', lineHeight: 1.5 }}>Scan the QR code at your table — verified reviews count 3x more.</div>
+                  </div>
+                </div>
+              )}
               <div style={{ marginBottom: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                   <span className="field-label" style={{ marginBottom: 0 }}>Add phone or email</span>
                   <span style={{ fontSize: 11, color: '#999', background: '#F5F5F5', padding: '2px 8px', borderRadius: 20 }}>optional</span>
-                </div>
-                <div style={{ background: '#FFF3ED', border: '1px solid #FBD9C4', borderRadius: 12, padding: '12px 14px', display: 'flex', gap: 10, marginBottom: 12 }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                    <path d="M12 2.5l2.2 1.7 2.8.2.8 2.7 2.2 1.7-.8 2.7.8 2.7-2.2 1.7-.8 2.7-2.8.2L12 21.5l-2.2-1.7-2.8-.2-.8-2.7L4 15.2l.8-2.7L4 9.8l2.2-1.7.8-2.7 2.8-.2L12 2.5z" fill="#F86D1C" fillOpacity="0.15" stroke="#F86D1C" strokeWidth="1.3"/>
-                    <path d="M9 12l2 2 4-4" stroke="#C24A12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#9A3B10' }}>Get a Verified badge</div>
-                    <div style={{ fontSize: 12, color: '#B45A2A', lineHeight: 1.5 }}>Verified reviews count 3x more and stand out.</div>
-                  </div>
                 </div>
                 <input className="phone-input" placeholder="03XXXXXXXXX or email" value={phone} onChange={e => { setPhone(e.target.value); setContactFromProfile(false) }} type="tel"/>
                 {contactFromProfile && (
@@ -768,7 +787,7 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                     <div className="phone-row verified" style={{ marginTop: 8 }}>
                       <div className="phone-left">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4CAF50" strokeWidth="1.5"/><path d="M8 12l3 3 5-5" stroke="#4CAF50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        <div className="phone-label" style={{ color: '#4CAF50' }}>Verified</div>
+                        <div className="phone-label" style={{ color: '#4CAF50' }}>Looks good</div>
                       </div>
                     </div>
                   ) : (

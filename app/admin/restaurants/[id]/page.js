@@ -1,7 +1,11 @@
+import QRCode from 'qrcode'
 import { requireAdmin } from '../../../../lib/dal'
 import { getAdminSupabase } from '../../../../lib/supabase-admin'
 import { BASE_BILL_PKR, monthlyBillPKR, formatPKR } from '../../../../lib/billing'
+import { scanUrlFor } from '../../../../lib/qr'
+import { generateBranchQR } from '../../actions'
 import BillingControls from './BillingControls'
+import QrCard from '../../../QrCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,6 +59,18 @@ export default async function AdminRestaurantDetail({ params }) {
   for (const b of branches || []) branchName[b.id] = b.name
   const activeBranches = (branches || []).filter((b) => b.is_active).length
   const bill = monthlyBillPKR(activeBranches)
+
+  // Existing QR codes for these branches, with rendered images.
+  const branchIds = (branches || []).map((b) => b.id)
+  const qrByBranch = {}
+  if (branchIds.length) {
+    const { data: qrs } = await admin.from('branch_qr').select('branch_id, token').in('branch_id', branchIds)
+    for (const q of qrs || []) {
+      qrByBranch[q.branch_id] = await QRCode.toDataURL(scanUrlFor(q.token), {
+        margin: 1, width: 300, color: { dark: '#1A1A1A', light: '#FFFFFFFF' },
+      })
+    }
+  }
 
   return (
     <div>
@@ -171,6 +187,32 @@ export default async function AdminRestaurantDetail({ params }) {
               </div>
             ))}
           </>
+        )}
+      </div>
+
+      <div className="sec">
+        <div className="sec-h">Table QR codes</div>
+        {(branches || []).length === 0 ? (
+          <div className="none">Add a branch first, then generate its QR.</div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14, padding: 16 }}>
+            {branches.map((b) => (
+              qrByBranch[b.id] ? (
+                <QrCard key={b.id} dataUrl={qrByBranch[b.id]} restaurant={r.name} branch={b.name}
+                  filename={('foodoo-' + (r.code_prefix || r.slug) + '-' + b.name).replace(/\s+/g, '-').toLowerCase() + '.png'} />
+              ) : (
+                <div key={b.id} style={{ background: '#fff', border: '1px dashed #E0E0E0', borderRadius: 16, padding: 18, textAlign: 'center' }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#1A1A1A', marginBottom: 4 }}>{b.name}</div>
+                  <div style={{ fontSize: 12, color: '#999', marginBottom: 12 }}>No QR yet</div>
+                  <form action={generateBranchQR}>
+                    <input type="hidden" name="branch_id" value={b.id} />
+                    <input type="hidden" name="restaurant_id" value={r.id} />
+                    <button type="submit" style={{ background: '#F86D1C', color: '#fff', border: 'none', borderRadius: 10, padding: '9px 18px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Generate QR</button>
+                  </form>
+                </div>
+              )
+            ))}
+          </div>
         )}
       </div>
 
