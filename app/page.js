@@ -62,6 +62,8 @@ export default async function Home() {
         .logo span { color: #F86D1C; }
         .logo-sub { font-size: 12px; color: #888; margin-top: 3px; font-weight: 400; }
         .header-icons { display: flex; align-items: center; gap: 10px; }
+        .join-btn { display: inline-flex; align-items: center; border: 1.5px solid #F86D1C; color: #F86D1C; background: #fff; font-size: 13px; font-weight: 700; padding: 8px 16px; border-radius: 10px; text-decoration: none; white-space: nowrap; transition: background 0.15s ease, color 0.15s ease; }
+        .join-btn:hover { background: #F86D1C; color: #fff; }
         .icon-circle { width: 40px; height: 40px; border-radius: 50%; background: #F5F5F5; display: flex; align-items: center; justify-content: center; text-decoration: none; position: relative; }
         .bell-dot { width: 8px; height: 8px; background: #F86D1C; border-radius: 50%; position: absolute; top: 8px; right: 9px; border: 1.5px solid #fff; }
 
@@ -158,10 +160,7 @@ export default async function Home() {
             <div className="logo-sub">Find the best dish before you order</div>
           </div>
           <div className="header-icons">
-            <a href="/notifications" className="icon-circle">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <div className="bell-dot"></div>
-            </a>
+            <a href="/partner" className="join-btn">Join us</a>
             <HeaderAvatar />
           </div>
         </div>
@@ -236,7 +235,7 @@ export default async function Home() {
                       ? <img src={dish.photo_url} alt={dish.name} loading="lazy"/>
                       : <div className="dish-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg></div>
                     }
-                    {dish._ranked && <div className="dish-rank-badge">#{i + 1}</div>}
+                    <div className="dish-rank-badge">#{i + 1}</div>
                     <SaveButton dishId={dish.id} />
                   </div>
                   <div className="dish-info">

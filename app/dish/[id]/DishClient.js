@@ -568,7 +568,10 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
               <div className="sim-scroll">
                 {similarDishes.map(d => (
                   <a key={d.id} href={'/dish/' + d.id} className="sim-card">
-                    <div className="sim-img">
+                    <div className="sim-img" style={{ position: 'relative' }}>
+                      {d.rank > 0 && (
+                        <div style={{ position: 'absolute', top: 6, left: 6, background: '#F86D1C', color: '#fff', fontSize: 10, fontWeight: 800, padding: '2px 7px', borderRadius: 6 }}>#{d.rank}</div>
+                      )}
                       {d.photo_url
                         ? <img src={d.photo_url} alt={d.name} loading="lazy"/>
                         : <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg>

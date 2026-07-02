@@ -80,11 +80,13 @@ export default async function DishPage({ params }) {
   )
 
   // Dish rank uses the same Editor's Picks list as the home & restaurant pages
-  // so every "#N in Editor's Picks" badge is consistent.
+  // so every "#N in Editor's Picks" badge is consistent. Rank = position in the list.
   const rankList = await getEditorsPicks(supabase, { columns: 'id' })
-  const rankIdx = rankList.findIndex(d => d.id === dish.id)
-  // Only a genuinely qualified dish (>= MIN_RANK_REVIEWS) wears the badge.
-  const rank = rankIdx >= 0 && rankList[rankIdx]._ranked ? rankIdx + 1 : 0
+  const rankMap = {}
+  rankList.forEach((d, i) => { rankMap[d.id] = i + 1 })
+  const rank = rankMap[dish.id] || 0
+  // Tag each "people also love" dish with its Editor's Picks rank (if any).
+  similarDishes.forEach((d) => { d.rank = rankMap[d.id] || 0 })
 
   return <DishClient dish={dish} reviews={reviews} similarDishes={similarDishes} rank={rank} />
 }
