@@ -5,7 +5,7 @@ import BackButton from './BackButton'
 async function getRestaurant(slug) {
   const { data } = await supabase
     .from('restaurants')
-    .select('id, name, slug, logo_url, description, cuisine_type, avg_rating, total_reviews, city')
+    .select('id, name, slug, logo_url, cover_url, description, cuisine_type, avg_rating, total_reviews, city')
     .eq('slug', slug)
     .single()
   return data
@@ -143,8 +143,8 @@ export default async function RestaurantPage({ params, searchParams }) {
         </div>
 
         <div className="hero">
-          {restaurant.logo_url
-            ? <img src={restaurant.logo_url} alt={restaurant.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+          {(restaurant.cover_url || restaurant.logo_url)
+            ? <img src={restaurant.cover_url || restaurant.logo_url} alt={restaurant.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
             : <div className="hero-ph"><span style={{ fontSize: 64 }}>🏪</span></div>
           }
         </div>
