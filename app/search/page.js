@@ -40,6 +40,7 @@ function SearchContent() {
       .from('dishes')
       .select('id, name, category, photo_url, avg_rating, total_reviews, price, restaurants(name, slug)')
       .eq('status', 'active')
+      .eq('is_available', true)
       .order('weighted_score', { ascending: false })
       .limit(30)
 
@@ -57,6 +58,7 @@ function SearchContent() {
         .from('dishes')
         .select('id, name, category, photo_url, avg_rating, total_reviews, price, restaurants!inner(name, slug)')
         .eq('status', 'active')
+        .eq('is_available', true)
         .ilike('restaurants.name', `%${q.trim()}%`)
         .order('weighted_score', { ascending: false })
         .limit(20)

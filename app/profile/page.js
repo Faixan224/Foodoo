@@ -420,12 +420,12 @@ export default function ProfilePage() {
               <span>Tip: Your reviews help others discover the best dishes and restaurants!</span>
             </div>
 
-            <a href="/partner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '0 16px 16px', background: '#1A1A1A', borderRadius: 16, padding: '16px 18px', textDecoration: 'none' }}>
+            <a href="/partner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, margin: '0 16px 16px', background: '#1A1A1A', borderRadius: 16, padding: '16px 18px', textDecoration: 'none' }}>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>🏪 Own a restaurant?</div>
-                <div style={{ fontSize: 12, color: '#AAA', marginTop: 2 }}>Partner with Foodoo — get your dishes rated &amp; discovered.</div>
+                <div style={{ fontSize: 12, color: '#AAA', marginTop: 2 }}>Partner with Foodoo — get your dishes discovered, ranked &amp; rated.</div>
               </div>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#F86D1C" strokeWidth="2.5" strokeLinecap="round"/></svg>
+              <span style={{ background: '#F86D1C', color: '#fff', fontSize: 12, fontWeight: 800, padding: '9px 16px', borderRadius: 10, whiteSpace: 'nowrap' }}>Join us →</span>
             </a>
           </>
         )}

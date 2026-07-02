@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { getAdminSupabase } from '../../lib/supabase-admin'
 import { requireAdmin } from '../../lib/dal'
+import { monthlyBillPKR } from '../../lib/billing'
 
 function seg() {
   return String(Math.floor(Math.random() * 900) + 100) // 100–999
@@ -58,4 +59,68 @@ export async function issueCode(prevState, formData) {
 
   revalidatePath('/admin/codes')
   return { ok: true, code }
+}
+
+// Record a manual payment: sets the paid-until date on the restaurant's
+// subscription row and re-activates the restaurant if it was suspended.
+export async function recordPayment(prevState, formData) {
+  await requireAdmin()
+  const restaurantId = String(formData.get('restaurant_id') || '')
+  const paidUntil = String(formData.get('paid_until') || '')
+  if (!restaurantId || !paidUntil) return { error: 'Pick a paid-until date.' }
+  const until = new Date(paidUntil + 'T23:59:59')
+  if (isNaN(until.getTime())) return { error: 'Invalid date.' }
+
+  const admin = getAdminSupabase()
+
+  const { count } = await admin
+    .from('branches')
+    .select('id', { count: 'exact', head: true })
+    .eq('restaurant_id', restaurantId)
+    .eq('is_active', true)
+  const amount = monthlyBillPKR(count ?? 0)
+
+  const { data: existing } = await admin
+    .from('subscriptions')
+    .select('id')
+    .eq('restaurant_id', restaurantId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  const fields = {
+    status: 'active',
+    price_per_month: amount,
+    expires_at: until.toISOString(),
+    last_payment_at: new Date().toISOString(),
+  }
+  const { error } = existing
+    ? await admin.from('subscriptions').update(fields).eq('id', existing.id)
+    : await admin.from('subscriptions').insert({ restaurant_id: restaurantId, plan: 'basic', ...fields })
+  if (error) return { error: 'Could not save: ' + error.message }
+
+  // Payment received -> make sure the restaurant is visible again.
+  await admin.from('restaurants').update({ is_active: true }).eq('id', restaurantId)
+
+  revalidatePath('/admin/restaurants/' + restaurantId)
+  revalidatePath('/admin/restaurants')
+  return { ok: true }
+}
+
+// Suspend (hide from the consumer app) or reactivate a restaurant.
+export async function setRestaurantActive(formData) {
+  await requireAdmin()
+  const restaurantId = String(formData.get('restaurant_id') || '')
+  const to = String(formData.get('to')) === 'true'
+  if (!restaurantId) return
+  const admin = getAdminSupabase()
+  await admin.from('restaurants').update({ is_active: to }).eq('id', restaurantId)
+  if (!to) {
+    await admin
+      .from('subscriptions')
+      .update({ status: 'expired' })
+      .eq('restaurant_id', restaurantId)
+  }
+  revalidatePath('/admin/restaurants/' + restaurantId)
+  revalidatePath('/admin/restaurants')
 }

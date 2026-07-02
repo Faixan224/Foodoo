@@ -7,6 +7,7 @@ async function getRestaurant(slug) {
     .from('restaurants')
     .select('id, name, slug, logo_url, cover_url, description, cuisine_type, avg_rating, total_reviews, city')
     .eq('slug', slug)
+    .eq('is_active', true) // suspended (unpaid) restaurants are hidden
     .single()
   return data
 }
@@ -14,9 +15,10 @@ async function getRestaurant(slug) {
 async function getRestaurantDishes(restaurantId) {
   const { data } = await supabase
     .from('dishes')
-    .select('id, name, category, photo_url, avg_rating, total_reviews, weighted_score, price')
+    .select('id, name, category, photo_url, avg_rating, total_reviews, weighted_score, price, is_chef_special')
     .eq('restaurant_id', restaurantId)
     .eq('status', 'active')
+    .eq('is_available', true)
     .order('weighted_score', { ascending: false })
 
   // List dishes that qualify for ranking (enough reviews) first, ordered by
@@ -31,7 +33,10 @@ async function getRestaurantDishes(restaurantId) {
 
 async function getTopDishIds() {
   const picks = await getEditorsPicks(supabase, { columns: 'id' })
-  return picks.map((d, i) => ({ id: d.id, rank: i + 1 }))
+  // Badge only for dishes that actually earned a rank (>= MIN_RANK_REVIEWS) —
+  // grid fillers must never show "#N in Editor's Picks".
+  return picks.map((d, i) => ({ id: d.id, rank: i + 1, ranked: !!d._ranked }))
+    .filter((d) => d.ranked)
 }
 
 export default async function RestaurantPage({ params, searchParams }) {
@@ -102,7 +107,10 @@ export default async function RestaurantPage({ params, searchParams }) {
         .dish-img-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #fff; overflow: hidden; }
         .dish-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
         .dish-img-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #F5F5F5; }
-        .rank-badge { position: absolute; top: 8px; left: 8px; background: #F86D1C; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 7px; }
+        .badge-col { position: absolute; top: 8px; left: 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+        .rank-badge { background: #F86D1C; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 7px; }
+        .chef-badge { background: #1A1A1A; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 7px; }
+        .chef-badge .sp { color: #F86D1C; }
         .dish-info { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
         .dish-name { font-size: 15px; font-weight: 800; color: #1A1A1A; line-height: 1.3; }
         .dish-rating-row { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
@@ -204,8 +212,15 @@ export default async function RestaurantPage({ params, searchParams }) {
                           </svg>
                         </div>
                     }
-                    {rankMap[dish.id] && (
-                      <div className="rank-badge">#{rankMap[dish.id]} in Editor's Picks</div>
+                    {(rankMap[dish.id] || dish.is_chef_special) && (
+                      <div className="badge-col">
+                        {rankMap[dish.id] && (
+                          <div className="rank-badge">#{rankMap[dish.id]} in Editor's Picks</div>
+                        )}
+                        {dish.is_chef_special && (
+                          <div className="chef-badge">👨‍🍳 Chef's <span className="sp">Special</span></div>
+                        )}
+                      </div>
                     )}
                   </div>
                   <div className="dish-info">

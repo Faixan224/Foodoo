@@ -15,6 +15,7 @@ async function getPopularDishes() {
     .from('dishes')
     .select('id, name, category, photo_url, avg_rating, total_reviews, price, restaurants(name)')
     .eq('status', 'active')
+    .eq('is_available', true)
     .order('total_reviews', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(10)
@@ -235,7 +236,7 @@ export default async function Home() {
                       ? <img src={dish.photo_url} alt={dish.name} loading="lazy"/>
                       : <div className="dish-img-placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/></svg></div>
                     }
-                    <div className="dish-rank-badge">#{i + 1}</div>
+                    {dish._ranked && <div className="dish-rank-badge">#{i + 1}</div>}
                     <SaveButton dishId={dish.id} />
                   </div>
                   <div className="dish-info">
@@ -347,6 +348,17 @@ export default async function Home() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* PARTNER WITH FOODOO */}
+        <div className="section">
+          <a href="/partner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, background: '#1A1A1A', borderRadius: 18, padding: '18px 20px', textDecoration: 'none' }}>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>🏪 Own a restaurant?</div>
+              <div style={{ fontSize: 12, color: '#AAA', marginTop: 3, lineHeight: 1.5 }}>Partner with Foodoo — get your dishes discovered, ranked &amp; rated.</div>
+            </div>
+            <span style={{ background: '#F86D1C', color: '#fff', fontSize: 12, fontWeight: 800, padding: '9px 16px', borderRadius: 10, whiteSpace: 'nowrap' }}>Join us →</span>
+          </a>
         </div>
 
       </div>

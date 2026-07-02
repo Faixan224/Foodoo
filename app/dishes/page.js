@@ -8,6 +8,7 @@ async function getAllDishes() {
     .from('dishes')
     .select('id, name, category, photo_url, avg_rating, total_reviews, price, restaurants(name)')
     .eq('status', 'active')
+    .eq('is_available', true)
     .order('total_reviews', { ascending: false })
     .order('created_at', { ascending: false })
   return data || []

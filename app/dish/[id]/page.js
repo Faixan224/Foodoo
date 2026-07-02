@@ -6,10 +6,10 @@ async function getDish(id) {
   const { data } = await supabase
     .from('dishes')
     .select(`
-      id, name, description, category, price, photo_url, video_url,
+      id, name, description, category, price, photo_url, video_url, is_available, is_chef_special,
       avg_rating, total_reviews, verified_reviews, unverified_reviews,
       restaurants(id, name, slug, logo_url, cuisine_type),
-      branches(name, area, city)
+      branches!dishes_branch_id_fkey(name, area, city)
     `)
     .eq('id', id)
     .single()
@@ -25,6 +25,19 @@ async function getReviews(dishId) {
     .order('created_at', { ascending: false })
     .limit(20)
   const reviews = data || []
+
+  // Attach the restaurant's reply (one per review) so it shows under the review.
+  const ids = reviews.map((r) => r.id)
+  if (ids.length) {
+    const { data: replies } = await supabase
+      .from('review_replies')
+      .select('review_id, reply_text, created_at')
+      .in('review_id', ids)
+    if (replies) {
+      const rmap = Object.fromEntries(replies.map((x) => [x.review_id, x]))
+      reviews.forEach((r) => { r.reply = rmap[r.id] || null })
+    }
+  }
 
   // Attach each reviewer's profile picture (from reviewer_profiles, public read)
   const hashes = [...new Set(reviews.map(r => r.phone_hash).filter(Boolean))]
@@ -48,6 +61,7 @@ async function getSimilarDishes(restaurantId, currentDishId) {
     .eq('restaurant_id', restaurantId)
     .neq('id', currentDishId)
     .eq('status', 'active')
+    .eq('is_available', true)
     .limit(6)
   return data || []
 }
@@ -68,7 +82,9 @@ export default async function DishPage({ params }) {
   // Dish rank uses the same Editor's Picks list as the home & restaurant pages
   // so every "#N in Editor's Picks" badge is consistent.
   const rankList = await getEditorsPicks(supabase, { columns: 'id' })
-  const rank = rankList.findIndex(d => d.id === dish.id) + 1
+  const rankIdx = rankList.findIndex(d => d.id === dish.id)
+  // Only a genuinely qualified dish (>= MIN_RANK_REVIEWS) wears the badge.
+  const rank = rankIdx >= 0 && rankList[rankIdx]._ranked ? rankIdx + 1 : 0
 
   return <DishClient dish={dish} reviews={reviews} similarDishes={similarDishes} rank={rank} />
 }

@@ -56,7 +56,7 @@ export default async function DishesPage() {
         .dish-img { position: relative; width: 100%; height: 140px; background: #F5F5F5; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .dish-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
         .dish-card:hover .dish-img img { transform: scale(1.04); }
-        .chef-badge { position: absolute; top: 10px; left: 10px; background: #fff; border: 1.5px solid #F86D1C; color: #F86D1C; font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 20px; letter-spacing: 0.3px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .chef-badge { position: absolute; top: 10px; left: 10px; background: #1A1A1A; color: #fff; font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 7px; letter-spacing: 0.3px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         .off-badge { position: absolute; top: 10px; right: 10px; background: rgba(26,26,26,0.85); color: #fff; font-size: 10px; font-weight: 700; padding: 4px 9px; border-radius: 20px; }
         .dish-body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
         .dish-name { font-size: 14px; font-weight: 800; color: #1A1A1A; line-height: 1.3; }
@@ -109,7 +109,7 @@ export default async function DishesPage() {
                 {d.photo_url
                   ? <img src={d.photo_url} alt={d.name} />
                   : <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#CCC" strokeWidth="1.5"/><path d="M8 12h8M12 8v8" stroke="#CCC" strokeWidth="1.5" strokeLinecap="round"/></svg>}
-                {d.is_chef_special && <span className="chef-badge">👨‍🍳 Chef's Special</span>}
+                {d.is_chef_special && <span className="chef-badge">👨‍🍳 Chef's <span style={{ color: '#F86D1C' }}>Special</span></span>}
                 {!d.is_available && <span className="off-badge">Unavailable</span>}
               </div>
               <div className="dish-body">

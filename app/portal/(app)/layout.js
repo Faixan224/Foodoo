@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation'
 import { getAuthUser, getProfile } from '../../../lib/dal'
+import { getServerSupabase } from '../../../lib/supabase-server'
 import { logout } from '../actions'
 import PortalNav from './PortalNav'
+import ExpiryGate from './ExpiryGate'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,6 +34,30 @@ export default async function PortalAppLayout({ children }) {
     )
   }
 
+  // Billing gate: blur the portal when the subscription is overdue or the
+  // restaurant is suspended (billing page stays reachable).
+  let suspended = false
+  let expired = false
+  if (profile.role !== 'admin') {
+    const supabase = await getServerSupabase()
+    const { data: restaurant } = await supabase
+      .from('restaurants')
+      .select('id, is_active')
+      .eq('owner_id', user.id)
+      .maybeSingle()
+    if (restaurant) {
+      suspended = restaurant.is_active === false
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('expires_at')
+        .eq('restaurant_id', restaurant.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (sub?.expires_at) expired = new Date(sub.expires_at) < new Date()
+    }
+  }
+
   return (
     <div className="shell">
       <style>{`
@@ -53,7 +79,7 @@ export default async function PortalAppLayout({ children }) {
         .logout-btn { width: 100%; background: #fff; border: 1.5px solid #EEE; color: #E53935; border-radius: 10px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color 0.18s ease, background 0.18s ease; }
         .logout-btn:hover { border-color: #E53935; background: #FFF8F8; }
         .admin-link { display: block; font-size: 12px; color: #F86D1C; font-weight: 600; text-decoration: none; margin-bottom: 10px; }
-        .main { flex: 1; padding: 32px 40px; max-width: 1100px; animation: fadeUp 0.35s ease both; }
+        .main { flex: 1; padding: 32px 40px; max-width: 1100px; animation: fadeUp 0.35s ease both; position: relative; }
         button { transition: transform 0.12s ease, opacity 0.15s ease; }
         button:active { transform: scale(0.97); }
       `}</style>
@@ -73,7 +99,10 @@ export default async function PortalAppLayout({ children }) {
         </div>
       </aside>
 
-      <main className="main">{children}</main>
+      <main className="main">
+        {children}
+        <ExpiryGate suspended={suspended} expired={expired} />
+      </main>
     </div>
   )
 }

@@ -407,6 +407,40 @@ export async function updateDish(prevState, formData) {
   redirect('/portal/dishes')
 }
 
+// --- Review replies ---------------------------------------------------------
+// One reply per review (DB UNIQUE(review_id)); RLS verifies the review belongs
+// to the owner's own restaurant.
+export async function replyToReview(prevState, formData) {
+  const reviewId = String(formData.get('review_id') || '')
+  const text = String(formData.get('reply_text') || '').trim()
+  if (!reviewId) return { error: 'Missing review.' }
+  if (!text) return { error: 'Write a reply first.' }
+  if (text.length > 500) return { error: 'Reply must be under 500 characters.' }
+
+  const supabase = await getServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not signed in.' }
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!restaurant) return { error: 'No restaurant linked to this account.' }
+
+  const { error } = await supabase.from('review_replies').insert({
+    review_id: reviewId,
+    restaurant_id: restaurant.id,
+    reply_text: text,
+  })
+  if (error) {
+    if (error.code === '23505') return { error: 'You already replied to this review.' }
+    return { error: 'Could not post the reply: ' + error.message }
+  }
+
+  revalidatePath('/portal/reviews')
+  return { ok: true, reviewId }
+}
+
 // --- Restaurant profile ----------------------------------------------------
 export async function updateRestaurantProfile(prevState, formData) {
   const supabase = await getServerSupabase()

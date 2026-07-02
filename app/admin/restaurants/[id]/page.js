@@ -1,6 +1,7 @@
 import { requireAdmin } from '../../../../lib/dal'
 import { getAdminSupabase } from '../../../../lib/supabase-admin'
 import { BASE_BILL_PKR, monthlyBillPKR, formatPKR } from '../../../../lib/billing'
+import BillingControls from './BillingControls'
 
 export const dynamic = 'force-dynamic'
 
@@ -150,6 +151,7 @@ export default async function AdminRestaurantDetail({ params }) {
         <div className="bill-note">
           Cycle: invoice on the 5th of each month · due by the 10th · new branches prorated to the next 5th. Payment collection is manual for now.
         </div>
+        <BillingControls restaurantId={r.id} isActive={r.is_active} />
       </div>
 
       <div className="sec">

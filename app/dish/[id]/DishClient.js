@@ -403,6 +403,13 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             <div className="dish-name">{dish.name}</div>
           </div>
 
+          {dish.is_available === false && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#FFF8E1', border: '1px solid #FFE1A0', borderRadius: 12, padding: '10px 14px', marginBottom: 14 }}>
+              <span style={{ fontSize: 16 }}>⏸️</span>
+              <span style={{ fontSize: 13, color: '#8A6D1B', fontWeight: 600 }}>Currently unavailable at the restaurant — check back soon.</span>
+            </div>
+          )}
+
           {dish.total_reviews > 0 && rating > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#F86D1C"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -411,13 +418,20 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
             </div>
           )}
 
-          {rank > 0 && rank <= 10 && (
-            <div style={{ marginBottom: 14 }}>
-              <span style={{ background: '#F86D1C', color: '#fff', fontSize: 12, fontWeight: 700, padding: '5px 12px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                #{rank} in Editor's Picks
-              </span>
+          {(rank > 0 && rank <= 10) || dish.is_chef_special ? (
+            <div style={{ marginBottom: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {rank > 0 && rank <= 10 && (
+                <span style={{ background: '#F86D1C', color: '#fff', fontSize: 12, fontWeight: 700, padding: '5px 12px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                  #{rank} in Editor's Picks
+                </span>
+              )}
+              {dish.is_chef_special && (
+                <span style={{ background: '#1A1A1A', color: '#fff', fontSize: 12, fontWeight: 700, padding: '5px 12px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  👨‍🍳 Chef's&nbsp;<span style={{ color: '#F86D1C' }}>Special</span>
+                </span>
+              )}
             </div>
-          )}
+          ) : null}
 
           <div className="info-pills">
             {dish.price && (
@@ -495,6 +509,14 @@ export default function DishClient({ dish, reviews, similarDishes, rank }) {
                       </div>
                     </div>
                     {r.comment && <div className="rev-text">{r.comment}</div>}
+                    {r.reply && (
+                      <div style={{ background: '#FAFAFA', borderLeft: '3px solid #F86D1C', borderRadius: '0 10px 10px 0', padding: '10px 12px', marginTop: 8 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#F86D1C', marginBottom: 3 }}>
+                          Response from {dish.restaurants?.name || 'the restaurant'}
+                        </div>
+                        <div style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>{r.reply.reply_text}</div>
+                      </div>
+                    )}
                     {r.photo_url && (
                       <img src={r.photo_url} alt="review" loading="lazy" onClick={() => setLightbox(r)}
                         style={{ width: 84, height: 84, objectFit: 'cover', borderRadius: 10, marginTop: 10, cursor: 'pointer', border: '1px solid #EEE', display: 'block' }}/>

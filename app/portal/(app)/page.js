@@ -18,13 +18,81 @@ export default async function PortalDashboard() {
 
   let branchCount = 0
   let dishCount = 0
+  let analytics = null
   if (restaurant) {
     const [b, d] = await Promise.all([
-      supabase.from('branches').select('id', { count: 'exact', head: true }).eq('restaurant_id', restaurant.id),
-      supabase.from('dishes').select('id', { count: 'exact', head: true }).eq('restaurant_id', restaurant.id).neq('status', 'discontinued'),
+      supabase.from('branches').select('id, name').eq('restaurant_id', restaurant.id),
+      supabase.from('dishes').select('id, name, avg_rating, total_reviews').eq('restaurant_id', restaurant.id).neq('status', 'discontinued'),
     ])
-    branchCount = b.count ?? 0
-    dishCount = d.count ?? 0
+    const branches = b.data || []
+    const dishes = d.data || []
+    branchCount = branches.length
+    dishCount = dishes.length
+
+    // Review analytics: last 60 days across all own dishes, computed in JS
+    // (small volumes; move to a DB view if this ever gets heavy).
+    if (dishes.length > 0) {
+      const since = new Date(Date.now() - 60 * 86400000).toISOString()
+      const dishIds = dishes.map((x) => x.id)
+      const [{ data: revs }, { data: mappings }] = await Promise.all([
+        supabase
+          .from('reviews')
+          .select('dish_id, stars, created_at')
+          .in('dish_id', dishIds)
+          .eq('is_hidden', false)
+          .gte('created_at', since)
+          .limit(1000),
+        supabase.from('dish_branches').select('dish_id, branch_id'),
+      ])
+      const reviews = revs || []
+      const now = Date.now()
+      const avg = (a) => (a.length ? a.reduce((s, r) => s + r.stars, 0) / a.length : 0)
+      const windowStats = (days) => {
+        const cur = reviews.filter((r) => now - new Date(r.created_at).getTime() < days * 86400000)
+        const prev = reviews.filter((r) => {
+          const age = now - new Date(r.created_at).getTime()
+          return age >= days * 86400000 && age < 2 * days * 86400000
+        })
+        return { days, count: cur.length, prevCount: prev.length, avg: avg(cur), prevAvg: avg(prev) }
+      }
+
+      // Per-dish, last 30 days.
+      const cutoff30 = now - 30 * 86400000
+      const perDish = dishes.map((dish) => {
+        const rs = reviews.filter((r) => r.dish_id === dish.id && new Date(r.created_at).getTime() > cutoff30)
+        return { ...dish, recentCount: rs.length, recentAvg: avg(rs) }
+      })
+      const topDishes = perDish
+        .filter((x) => x.recentCount > 0)
+        .sort((a, b) => b.recentAvg - a.recentAvg || b.recentCount - a.recentCount)
+        .slice(0, 3)
+      const needsAttention = perDish
+        .filter((x) => x.recentCount >= 2 && x.recentAvg < 3.5)
+        .sort((a, b) => a.recentAvg - b.recentAvg)
+        .slice(0, 3)
+
+      // Per-branch (a dish's reviews count towards every branch that serves it).
+      const dishBranches = {}
+      for (const m of mappings || []) {
+        dishBranches[m.dish_id] = dishBranches[m.dish_id] || []
+        dishBranches[m.dish_id].push(m.branch_id)
+      }
+      const perBranch = branches.map((br) => {
+        const rs = reviews.filter(
+          (r) => new Date(r.created_at).getTime() > cutoff30 && (dishBranches[r.dish_id] || []).includes(br.id)
+        )
+        return { ...br, recentCount: rs.length, recentAvg: avg(rs) }
+      })
+
+      analytics = { windows: [windowStats(7), windowStats(14), windowStats(30)], topDishes, needsAttention, perBranch }
+    }
+  }
+
+  const delta = (cur, prev, digits = 0) => {
+    if (!prev && !cur) return null
+    const diff = cur - prev
+    if (Math.abs(diff) < (digits ? 0.05 : 1)) return { txt: 'same as before', dir: 0 }
+    return { txt: `${diff > 0 ? '+' : ''}${digits ? diff.toFixed(1) : diff} vs previous`, dir: diff > 0 ? 1 : -1 }
   }
 
   return (
@@ -47,6 +115,29 @@ export default async function PortalDashboard() {
         a.stat:hover { transform: translateY(-2px); border-color: #F86D1C; box-shadow: 0 6px 18px rgba(0,0,0,0.07); }
         .stat-val { font-size: 26px; font-weight: 900; color: #1A1A1A; }
         .stat-lbl { font-size: 12px; color: #999; margin-top: 3px; }
+        .an-title { font-size: 16px; font-weight: 800; color: #1A1A1A; margin: 4px 0 12px; animation: fadeUp 0.4s ease 0.08s both; }
+        .an-windows { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+        @media (max-width: 900px) { .an-windows { grid-template-columns: 1fr; } }
+        .an-card { background: #fff; border: 1px solid #EEE; border-radius: 14px; padding: 16px 18px; animation: fadeUp 0.4s ease 0.1s both; transition: transform 0.18s ease, box-shadow 0.18s ease; }
+        .an-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+        .an-days { font-size: 10px; font-weight: 800; color: #F86D1C; letter-spacing: 0.8px; margin-bottom: 10px; }
+        .an-nums { display: flex; gap: 26px; }
+        .an-val { font-size: 22px; font-weight: 900; color: #1A1A1A; }
+        .an-lbl { font-size: 11px; color: #999; margin-top: 1px; }
+        .an-delta { font-size: 10px; font-weight: 700; margin-top: 4px; }
+        .an-delta.d1 { color: #2E7D32; }
+        .an-delta.d-1 { color: #C0392B; }
+        .an-delta.d0 { color: #AAA; }
+        .an-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+        @media (max-width: 900px) { .an-2col { grid-template-columns: 1fr; } }
+        .an-panel { background: #fff; border: 1px solid #EEE; border-radius: 14px; padding: 16px 18px; animation: fadeUp 0.4s ease 0.12s both; }
+        .an-panel-h { font-size: 13px; font-weight: 800; color: #1A1A1A; margin-bottom: 10px; }
+        .an-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F6F6F6; }
+        .an-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .an-dish { font-size: 13px; font-weight: 700; color: #1A1A1A; }
+        .an-stat { font-size: 12px; color: #888; white-space: nowrap; }
+        .an-stat.low { color: #C0392B; font-weight: 700; }
+        .an-empty { font-size: 12px; color: #BBB; padding: 6px 0; }
         .qa-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; animation: fadeUp 0.4s ease 0.1s both; }
         @media (max-width: 700px) { .qa-row { grid-template-columns: 1fr; } }
         .qa { background: #fff; border: 1px solid #EEE; border-radius: 16px; padding: 20px 22px; text-decoration: none; transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease; display: block; }
@@ -93,6 +184,78 @@ export default async function PortalDashboard() {
             </a>
           </div>
 
+          {analytics && (
+            <>
+              <div className="an-title">Performance</div>
+              <div className="an-windows">
+                {analytics.windows.map((w) => {
+                  const dCount = delta(w.count, w.prevCount)
+                  const dAvg = delta(w.avg, w.prevAvg, 1)
+                  return (
+                    <div className="an-card" key={w.days}>
+                      <div className="an-days">LAST {w.days} DAYS</div>
+                      <div className="an-nums">
+                        <div>
+                          <div className="an-val">{w.count}</div>
+                          <div className="an-lbl">reviews</div>
+                          {dCount && <div className={'an-delta d' + dCount.dir}>{dCount.txt}</div>}
+                        </div>
+                        <div>
+                          <div className="an-val">{w.avg > 0 ? w.avg.toFixed(1) : '—'}</div>
+                          <div className="an-lbl">avg rating</div>
+                          {dAvg && <div className={'an-delta d' + dAvg.dir}>{dAvg.txt}</div>}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="an-2col">
+                <div className="an-panel">
+                  <div className="an-panel-h">🏆 Top dishes (30 days)</div>
+                  {analytics.topDishes.length === 0 ? (
+                    <div className="an-empty">No reviews in the last 30 days yet.</div>
+                  ) : (
+                    analytics.topDishes.map((x) => (
+                      <div className="an-row" key={x.id}>
+                        <span className="an-dish">{x.name}</span>
+                        <span className="an-stat">★ {x.recentAvg.toFixed(1)} · {x.recentCount} review{x.recentCount > 1 ? 's' : ''}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div className="an-panel">
+                  <div className="an-panel-h">⚠️ Needs attention</div>
+                  {analytics.needsAttention.length === 0 ? (
+                    <div className="an-empty">Nothing flagged — no dish is rating below 3.5 recently.</div>
+                  ) : (
+                    analytics.needsAttention.map((x) => (
+                      <div className="an-row" key={x.id}>
+                        <span className="an-dish">{x.name}</span>
+                        <span className="an-stat low">★ {x.recentAvg.toFixed(1)} · {x.recentCount} reviews</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {analytics.perBranch.length > 1 && (
+                <div className="an-panel" style={{ marginBottom: 26 }}>
+                  <div className="an-panel-h">🏪 Branches (last 30 days)</div>
+                  {analytics.perBranch.map((x) => (
+                    <div className="an-row" key={x.id}>
+                      <span className="an-dish">{x.name}</span>
+                      <span className="an-stat">
+                        {x.recentCount > 0 ? `★ ${x.recentAvg.toFixed(1)} · ${x.recentCount} reviews` : 'No recent reviews'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
           <div className="qa-row">
             {branchCount === 0 ? (
               <a className="qa" href="/portal/branches">
@@ -107,10 +270,11 @@ export default async function PortalDashboard() {
                 <span className="qa-go">Add dish →</span>
               </a>
             )}
-            <div className="qa" style={{ borderStyle: 'dashed', cursor: 'default' }}>
-              <div className="qa-t">📊 Reviews &amp; Analytics</div>
-              <div className="qa-s">See how your dishes perform, reply to reviews, and track branches — coming in Phase 2.</div>
-            </div>
+            <a className="qa" href="/portal/reviews">
+              <div className="qa-t">💬 Reply to reviews</div>
+              <div className="qa-s">See what diners are saying about your dishes and respond — replies show publicly on Foodoo.</div>
+              <span className="qa-go">Open reviews →</span>
+            </a>
           </div>
         </>
       ) : (

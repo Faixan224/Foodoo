@@ -7,8 +7,8 @@ const NAV = [
   { href: '/portal/restaurant', label: 'Restaurant', enabled: true },
   { href: '/portal/dishes', label: 'Dishes', enabled: true },
   { href: '/portal/branches', label: 'Branches', enabled: true },
-  { href: '/portal/reviews', label: 'Reviews', enabled: false },
-  { href: '/portal/billing', label: 'Billing', enabled: false },
+  { href: '/portal/reviews', label: 'Reviews', enabled: true },
+  { href: '/portal/billing', label: 'Billing', enabled: true },
 ]
 
 export default function PortalNav() {
